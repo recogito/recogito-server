@@ -1,1 +1,7 @@
 .idea
+.vscode
+./jest/node_modules/*
+./config-tool/node_modules
+.env
+./node_modules/*
+node_modules

@@ -1,8 +1,3 @@
-ALTER TABLE public.role_policies
-    DROP CONSTRAINT role_policies_policy_id_fkey;
-
-TRUNCATE public.policies;
-
 INSERT INTO public.policies
 (id, table_name, operation)
 VALUES ('6717fdc0-45df-46f3-b7d3-0d4c4569a33a','annotations','SELECT'),
@@ -85,8 +80,3 @@ VALUES ('6717fdc0-45df-46f3-b7d3-0d4c4569a33a','annotations','SELECT'),
        ('5648e0e9-3354-4b5c-b815-29d01d98a551','targets','INSERT'),
        ('45017da5-cb03-4826-ae6f-dafbe1e21339','targets','UPDATE'),
        ('9a7fb2a1-9ccb-4071-8ec9-b90fcf1eb546','targets','DELETE');
-
-ALTER TABLE public.role_policies
-    ADD CONSTRAINT role_policies_policy_id_fkey FOREIGN KEY (policy_id) REFERENCES public.policies (id);
-
-SET CLIENT_MIN_MESSAGES TO NOTICE;
