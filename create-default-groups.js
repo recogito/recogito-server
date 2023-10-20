@@ -32,6 +32,24 @@ const main = async (options) => {
 
   // console.info(JSON.stringify(config, null, 2));
 
+  // Create the policies
+  let policiesInserts = [];
+  config.policies.forEach((policy) => {
+    policiesInserts.push({
+      id: policy.id,
+      table_name: policy.table_name,
+      operation: policy.operation,
+    });
+  });
+
+  const policiesResponse = await supabase
+    .from('policies')
+    .upsert(policiesInserts)
+    .select();
+
+  console.info('Policies:');
+  console.table(policiesResponse.data);
+
   // Create the roles
   let rolesInsert = [];
   let rolePoliciesInsert = [];
