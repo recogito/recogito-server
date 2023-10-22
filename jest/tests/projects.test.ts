@@ -5,55 +5,55 @@ import {
   loginAsServiceUser,
   loginAsStudent,
   loginAsTutor,
-} from "../src/utility";
+} from '../src/utility';
 // @ts-ignore
-import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient } from '@supabase/supabase-js';
 // @ts-ignore
-import { log, table } from "console";
-import { create } from "njwt";
+import { log, table } from 'console';
+import { create } from 'njwt';
 
-const TEST_PROJECT_ID = "477577df-c156-4cca-9d7a-f96122c1362b";
-const NO_STUDENT_PROJECT_ID = "44847ef2-b2ff-48f9-b414-1a0ba316a297";
-const TEST_CONTEXT_ID = "3d8892d5-62e4-4ab9-8577-1403f911b5cd";
-const TEST_LAYER_ID = "d431c20b-37f7-46b1-9f6a-008e817f0ec8";
-const TEST_PUBLIC_ANNOTATION_ID = "63c3ff8f-6db3-40fd-bd70-bfd767f48e2a";
-const TEST_PRIVATE_ANNOTATION_ID = "72d41001-95e8-426c-959a-f1f7736a7fc3";
-const TEST_PROFESSOR_ANNOTATION_ID = "0b7dc46c-025c-4bf7-869b-1778c038cdaf";
-const TEST_PUBLIC_TARGET_ID = "4dfa5447-8392-4f62-b128-f1a7c094997d";
-const TEST_CANNOT_CREATE_TARGET_ID = "8c78bd59-b1e5-450e-a2b9-4ffe73e12d63";
-const TEST_PROFESSOR_TARGET_ID = "40b936f0-d818-43f8-aa8d-a73abfeb73ff";
-const TEST_PRIVATE_TARGET_ID = "f73d0d90-547c-425f-9369-56960ab3b3a3";
-const TEST_PUBLIC_BODY_ID = "0045df9f-8975-4304-80fb-c757dbd66469";
-const TEST_PRIVATE_BODY_ID = "d5a44ff5-4d8b-46b6-9f4e-38716794aa39";
-const TEST_PROFESSOR_BODY_ID = "952d0a9f-1006-46b4-9c12-b0750e214077";
-const TEST_CANNOT_CREATE_BODY_ID = "f97e06dc-b6a4-47df-b4f0-428b7a969f95";
-const TEST_SECOND_BODY_ID = "fd4eff1d-cd36-4291-8bd5-aacb039b7b9e";
-const TEST_DOCUMENT_ID = "09318ec8-58f2-4497-958f-8f91343802b2";
-const TEST_TUTOR_ANNOTATION_ID = "e381f0bd-04f5-48cf-93f8-c817db12a26e";
-const TEST_TUTOR_TARGET_ID = "625fb5b4-7144-4c54-9eda-547d2235a733";
-const TEST_TUTOR_BODY_ID = "8b678638-cd09-448b-9e28-140dc3217c37";
-const TEST_INVITE_ID = "ed273412-82ad-4715-ba6e-6eba2cdfc994";
-const TEST_TUTOR_DOCUMENT_ID = "9401ef28-aea9-4310-9137-99038148de77";
+const TEST_PROJECT_ID = '477577df-c156-4cca-9d7a-f96122c1362b';
+const NO_STUDENT_PROJECT_ID = '44847ef2-b2ff-48f9-b414-1a0ba316a297';
+const TEST_CONTEXT_ID = '3d8892d5-62e4-4ab9-8577-1403f911b5cd';
+const TEST_LAYER_ID = 'd431c20b-37f7-46b1-9f6a-008e817f0ec8';
+const TEST_PUBLIC_ANNOTATION_ID = '63c3ff8f-6db3-40fd-bd70-bfd767f48e2a';
+const TEST_PRIVATE_ANNOTATION_ID = '72d41001-95e8-426c-959a-f1f7736a7fc3';
+const TEST_PROFESSOR_ANNOTATION_ID = '0b7dc46c-025c-4bf7-869b-1778c038cdaf';
+const TEST_PUBLIC_TARGET_ID = '4dfa5447-8392-4f62-b128-f1a7c094997d';
+const TEST_CANNOT_CREATE_TARGET_ID = '8c78bd59-b1e5-450e-a2b9-4ffe73e12d63';
+const TEST_PROFESSOR_TARGET_ID = '40b936f0-d818-43f8-aa8d-a73abfeb73ff';
+const TEST_PRIVATE_TARGET_ID = 'f73d0d90-547c-425f-9369-56960ab3b3a3';
+const TEST_PUBLIC_BODY_ID = '0045df9f-8975-4304-80fb-c757dbd66469';
+const TEST_PRIVATE_BODY_ID = 'd5a44ff5-4d8b-46b6-9f4e-38716794aa39';
+const TEST_PROFESSOR_BODY_ID = '952d0a9f-1006-46b4-9c12-b0750e214077';
+const TEST_CANNOT_CREATE_BODY_ID = 'f97e06dc-b6a4-47df-b4f0-428b7a969f95';
+const TEST_SECOND_BODY_ID = 'fd4eff1d-cd36-4291-8bd5-aacb039b7b9e';
+const TEST_DOCUMENT_ID = '09318ec8-58f2-4497-958f-8f91343802b2';
+const TEST_TUTOR_ANNOTATION_ID = 'e381f0bd-04f5-48cf-93f8-c817db12a26e';
+const TEST_TUTOR_TARGET_ID = '625fb5b4-7144-4c54-9eda-547d2235a733';
+const TEST_TUTOR_BODY_ID = '8b678638-cd09-448b-9e28-140dc3217c37';
+const TEST_INVITE_ID = 'ed273412-82ad-4715-ba6e-6eba2cdfc994';
+const TEST_TUTOR_DOCUMENT_ID = '9401ef28-aea9-4310-9137-99038148de77';
 
-type TargetSelectorType = "Fragment" | "SvgSelector";
+type TargetSelectorType = 'Fragment' | 'SvgSelector';
 
-type TargetConformsToType = "Svg" | undefined;
+type TargetConformsToType = 'Svg' | undefined;
 
-type BodyTypes = "TextualBody";
+type BodyTypes = 'TextualBody';
 
-type BodyFormats = "TextPlain" | "TextHtml";
+type BodyFormats = 'TextPlain' | 'TextHtml';
 
 type ContentTypes =
-  | "text/markdown"
-  | "image/jpeg"
-  | "image/tiff"
-  | "image/png"
-  | "image/gif"
-  | "image/jp2"
-  | "application/pdf"
-  | "text/plain"
-  | "application/tei+xml"
-  | "application/xml";
+  | 'text/markdown'
+  | 'image/jpeg'
+  | 'image/tiff'
+  | 'image/png'
+  | 'image/gif'
+  | 'image/jp2'
+  | 'application/pdf'
+  | 'text/plain'
+  | 'application/tei+xml'
+  | 'application/xml';
 
 async function insertProject(
   supabase: SupabaseClient,
@@ -62,7 +62,7 @@ async function insertProject(
   description: string
 ) {
   return supabase
-    .from("projects")
+    .from('projects')
     .insert({ id: id, name: name, description: description })
     .select();
 }
@@ -73,18 +73,18 @@ async function updateProject(
   newName: string
 ) {
   const { error, data } = await supabase
-    .from("projects")
+    .from('projects')
     .update({ name: newName })
-    .eq("id", id)
+    .eq('id', id)
     .select();
 
   return !error && data && data.length > 0 && data[0].name === newName;
 }
 
 async function deleteProject(supabase: SupabaseClient, id: string) {
-  await supabase.from("projects").delete().eq("id", id);
+  await supabase.from('projects').delete().eq('id', id);
 
-  const { data } = await supabase.from("projects").select().eq("id", id);
+  const { data } = await supabase.from('projects').select().eq('id', id);
 
   return data ? data.length === 0 : false;
 }
@@ -94,11 +94,11 @@ async function readProjects(
   _name: string,
   _description: string
 ) {
-  return supabase.from("projects").select("*");
+  return supabase.from('projects').select('*');
 }
 
 async function readProject(supabase: SupabaseClient, projectId: string) {
-  const result = await supabase.from("projects").select().eq("id", projectId);
+  const result = await supabase.from('projects').select().eq('id', projectId);
 
   if (result.data && result.data.length > 0) {
     return result.data[0].id === projectId && !result.error;
@@ -113,29 +113,29 @@ async function addUserToProjectGroup(
   userEmail: string
 ) {
   const result = await supabase
-    .from("project_groups")
+    .from('project_groups')
     .select()
-    .eq("project_id", projectId)
-    .eq("name", groupName);
+    .eq('project_id', projectId)
+    .eq('name', groupName);
 
   if (result.data && result.data.length > 0) {
     const resultStudent = await supabase
-      .from("profiles")
+      .from('profiles')
       .select()
-      .eq("email", userEmail);
+      .eq('email', userEmail);
 
     if (resultStudent.data && result.data.length > 0) {
       const resultGroup = await supabase
-        .from("project_groups")
+        .from('project_groups')
         .select()
-        .eq("project_id", projectId)
-        .eq("name", groupName);
+        .eq('project_id', projectId)
+        .eq('name', groupName);
 
       if (resultGroup.data && resultGroup.data.length > 0) {
         const resultUserAdd = await supabase
-          .from("group_users")
+          .from('group_users')
           .insert({
-            group_type: "project",
+            group_type: 'project',
             type_id: resultGroup.data[0].id,
             user_id: resultStudent.data[0].id,
           })
@@ -152,7 +152,7 @@ async function addUserToProjectGroup(
 }
 
 async function readContext(supabase: SupabaseClient, contextId: string) {
-  const result = await supabase.from("contexts").select().eq("id", contextId);
+  const result = await supabase.from('contexts').select().eq('id', contextId);
 
   if (result.data && result.data.length > 0) {
     return true;
@@ -168,7 +168,7 @@ async function addContextToProject(
   name: string
 ) {
   const result = await supabase
-    .from("contexts")
+    .from('contexts')
     .insert({
       id: contextId,
       project_id: projectId,
@@ -184,15 +184,15 @@ async function addContextToProject(
 }
 
 async function deleteContext(supabase: SupabaseClient, contextId: string) {
-  const result = await supabase.from("contexts").delete().eq("id", contextId);
+  const result = await supabase.from('contexts').delete().eq('id', contextId);
 
   const supabaseCheck = await loginAsOrgAdmin();
 
   if (supabaseCheck) {
     const resultSelect = await supabaseCheck
-      .from("contexts")
+      .from('contexts')
       .select()
-      .eq("id", contextId);
+      .eq('id', contextId);
 
     if (!resultSelect.error && resultSelect.data.length === 0) {
       return true;
@@ -211,7 +211,7 @@ async function insertLayer(
   description: string
 ) {
   const resultLayer = await supabase
-    .from("layers")
+    .from('layers')
     .insert({
       id: layerId,
       project_id: projectId,
@@ -223,7 +223,7 @@ async function insertLayer(
 
   if (resultLayer.data && resultLayer.data.length > 0) {
     const resultLayerContext = await supabase
-      .from("layer_contexts")
+      .from('layer_contexts')
       .insert({
         layer_id: layerId,
         context_id: contextId,
@@ -239,7 +239,7 @@ async function insertLayer(
 }
 
 async function readLayer(supabase: SupabaseClient, layerId: string) {
-  const result = await supabase.from("layers").select().eq("id", layerId);
+  const result = await supabase.from('layers').select().eq('id', layerId);
 
   if (result.data && result.data.length > 0) {
     return true;
@@ -254,9 +254,9 @@ async function updateLayer(
   newName: string
 ) {
   const result = await supabase
-    .from("layers")
+    .from('layers')
     .update({ name: newName })
-    .eq("id", layerId)
+    .eq('id', layerId)
     .select();
 
   if (
@@ -271,15 +271,15 @@ async function updateLayer(
 }
 
 async function deleteLayer(supabase: SupabaseClient, layerId: string) {
-  const result = await supabase.from("layers").delete().eq("id", layerId);
+  const result = await supabase.from('layers').delete().eq('id', layerId);
 
   const supabaseCheck = await loginAsOrgAdmin();
 
   if (supabaseCheck) {
     const resultSelect = await supabaseCheck
-      .from("layers")
+      .from('layers')
       .select()
-      .eq("id", layerId);
+      .eq('id', layerId);
 
     if (!resultSelect.error && resultSelect.data.length === 0) {
       return true;
@@ -289,7 +289,7 @@ async function deleteLayer(supabase: SupabaseClient, layerId: string) {
 }
 
 async function getLayerGroups(supabase: SupabaseClient, layerId: string) {
-  return supabase.from("layer_groups").select().eq("layer_id", layerId);
+  return supabase.from('layer_groups').select().eq('layer_id', layerId);
 }
 
 async function addUserToLayerGroup(
@@ -299,29 +299,29 @@ async function addUserToLayerGroup(
   userEmail: string
 ) {
   const result = await supabase
-    .from("layer_groups")
+    .from('layer_groups')
     .select()
-    .eq("layer_id", layerId)
-    .eq("name", groupName);
+    .eq('layer_id', layerId)
+    .eq('name', groupName);
 
   if (result.data && result.data.length > 0) {
     const resultStudent = await supabase
-      .from("profiles")
+      .from('profiles')
       .select()
-      .eq("email", userEmail);
+      .eq('email', userEmail);
 
     if (resultStudent.data && result.data.length > 0) {
       const resultGroup = await supabase
-        .from("layer_groups")
+        .from('layer_groups')
         .select()
-        .eq("layer_id", layerId)
-        .eq("name", groupName);
+        .eq('layer_id', layerId)
+        .eq('name', groupName);
 
       if (resultGroup.data && resultGroup.data.length > 0) {
         const resultUserAdd = await supabase
-          .from("group_users")
+          .from('group_users')
           .insert({
-            group_type: "layer",
+            group_type: 'layer',
             type_id: resultGroup.data[0].id,
             user_id: resultStudent.data[0].id,
           })
@@ -338,7 +338,7 @@ async function addUserToLayerGroup(
 }
 
 async function getProjectGroups(supabase: SupabaseClient, projectId: string) {
-  return supabase.from("project_groups").select().eq("project_id", projectId);
+  return supabase.from('project_groups').select().eq('project_id', projectId);
 }
 
 async function isProjectGroupMember(
@@ -348,24 +348,24 @@ async function isProjectGroupMember(
   email: string
 ) {
   const resultGroup = await supabase
-    .from("project_groups")
+    .from('project_groups')
     .select()
-    .eq("name", groupName)
-    .eq("project_id", projectId);
+    .eq('name', groupName)
+    .eq('project_id', projectId);
 
   if (resultGroup.data && resultGroup.data.length > 0) {
     const resultProfile = await supabase
-      .from("profiles")
+      .from('profiles')
       .select()
-      .eq("email", email);
+      .eq('email', email);
 
     if (resultProfile.data && resultProfile.data.length > 0) {
       const resultGroupUser = await supabase
-        .from("group_users")
+        .from('group_users')
         .select()
-        .eq("group_type", "project")
-        .eq("type_id", resultGroup.data[0].id)
-        .eq("user_id", resultProfile.data[0].id);
+        .eq('group_type', 'project')
+        .eq('type_id', resultGroup.data[0].id)
+        .eq('user_id', resultProfile.data[0].id);
 
       if (resultGroupUser.data && resultGroupUser.data.length > 0) {
         return true;
@@ -382,16 +382,16 @@ async function insertAnnotation(
   layerId: string,
   isPrivate: boolean
 ) {
-  const result = await supabase.from("annotations").insert({
+  const result = await supabase.from('annotations').insert({
     id: annotationId,
     layer_id: layerId,
     is_private: isPrivate,
   });
 
   const resultSelect = await supabase
-    .from("annotations")
+    .from('annotations')
     .select()
-    .eq("id", annotationId);
+    .eq('id', annotationId);
 
   return !!(resultSelect.data && resultSelect.data.length > 0);
 }
@@ -402,19 +402,19 @@ async function updateAnnotation(
   isPrivate: boolean
 ) {
   const result = await supabase
-    .from("annotations")
+    .from('annotations')
     .update({
       is_private: isPrivate,
     })
-    .eq("id", annotationId);
+    .eq('id', annotationId);
 
   // console.log('Update Anno error: ', result.error);
 
   const supa = await loginAsServiceUser();
   const resultSelect = await supa
-    .from("annotations")
+    .from('annotations')
     .select()
-    .eq("id", annotationId);
+    .eq('id', annotationId);
 
   // console.log("Error: ", resultSelect.error);
 
@@ -430,8 +430,8 @@ async function archiveAnnotation(
   supabase: SupabaseClient,
   annotationId: string
 ) {
-  const result = await supabase.rpc("archive_record_rpc", {
-    _table_name: "annotations",
+  const result = await supabase.rpc('archive_record_rpc', {
+    _table_name: 'annotations',
     _id: annotationId,
   });
 
@@ -439,9 +439,9 @@ async function archiveAnnotation(
   if (result.status === 200) {
     // Should not be any targets or bodies returned
     const resultAnno = await supabase
-      .from("annotations")
+      .from('annotations')
       .select()
-      .eq("id", annotationId);
+      .eq('id', annotationId);
 
     if (resultAnno.data && resultAnno.data.length > 0) {
       // console.log("Found Anno");
@@ -449,20 +449,20 @@ async function archiveAnnotation(
     }
 
     const resultTarget = await supabase
-      .from("targets")
+      .from('targets')
       .select()
-      .eq("annotation_id", annotationId)
-      .neq("is_archived", true);
+      .eq('annotation_id', annotationId)
+      .neq('is_archived', true);
     if (resultTarget.data && resultTarget.data.length > 0) {
       // console.log("Found Target");
       return false;
     }
 
     const resultBody = await supabase
-      .from("bodies")
+      .from('bodies')
       .select()
-      .eq("annotation_id", annotationId)
-      .neq("is_archived", true);
+      .eq('annotation_id', annotationId)
+      .neq('is_archived', true);
     if (resultBody.data && resultBody.data.length > 0) {
       // console.log("Found Body");
       return false;
@@ -475,12 +475,12 @@ async function archiveAnnotation(
 }
 
 async function archiveBody(supabase: SupabaseClient, bodyId: string) {
-  const result = await supabase.rpc("archive_record_rpc", {
-    _table_name: "bodies",
+  const result = await supabase.rpc('archive_record_rpc', {
+    _table_name: 'bodies',
     _id: bodyId,
   });
 
-  const resultSelect = await supabase.from("bodies").select().eq("id", bodyId);
+  const resultSelect = await supabase.from('bodies').select().eq('id', bodyId);
 
   if (resultSelect.data && resultSelect.data.length === 0) {
     return true;
@@ -494,7 +494,7 @@ async function checkProjectMembership(
   projectId: string,
   email: string
 ) {
-  const result = await supabase.rpc("is_project_member", {
+  const result = await supabase.rpc('is_project_member', {
     _project_id: projectId,
     _email: email,
   });
@@ -513,9 +513,9 @@ async function selectAnnotation(
   annotationId: string
 ) {
   const result = await supabase
-    .from("annotations")
+    .from('annotations')
     .select()
-    .eq("id", annotationId);
+    .eq('id', annotationId);
 
   return !!(result.data && result.data.length > 0);
 }
@@ -526,14 +526,14 @@ async function deleteAnnotation(
   isPrivate: boolean
 ) {
   const result = await supabase
-    .from("annotations")
+    .from('annotations')
     .delete()
-    .eq("id", annotationId);
+    .eq('id', annotationId);
 
   const resultSelect = await supabase
-    .from("annotations")
+    .from('annotations')
     .select()
-    .eq("id", annotationId);
+    .eq('id', annotationId);
 
   return (
     !resultSelect.error && resultSelect.data && resultSelect.data.length === 0
@@ -547,7 +547,7 @@ async function insertDocument(
   bucketId: string,
   contentType: ContentTypes
 ) {
-  const result = await supabase.from("documents").insert({
+  const result = await supabase.from('documents').insert({
     id: documentId,
     name: name,
     bucket_id: bucketId,
@@ -555,15 +555,15 @@ async function insertDocument(
   });
 
   const resultSelect = await supabase
-    .from("documents")
+    .from('documents')
     .select()
-    .eq("id", documentId);
+    .eq('id', documentId);
 
   return !!(resultSelect.data && resultSelect.data.length > 0);
 }
 
 async function selectDocument(supabase: SupabaseClient, documentId: string) {
-  const result = await supabase.from("documents").select().eq("id", documentId);
+  const result = await supabase.from('documents').select().eq('id', documentId);
 
   return !!(result.data && result.data.length > 0);
 }
@@ -577,7 +577,7 @@ async function insertTarget(
   conformsTo: TargetConformsToType,
   value: string
 ) {
-  const result = await supabase.from("targets").insert({
+  const result = await supabase.from('targets').insert({
     id: targetId,
     annotation_id: annotationId,
     layer_id: layerId,
@@ -587,9 +587,9 @@ async function insertTarget(
   });
 
   const resultSelect = await supabase
-    .from("targets")
+    .from('targets')
     .select()
-    .eq("id", targetId);
+    .eq('id', targetId);
 
   return !!(resultSelect.data && resultSelect.data.length > 0);
 }
@@ -600,11 +600,11 @@ async function updateTarget(
   newValue: string
 ) {
   const result = await supabase
-    .from("targets")
+    .from('targets')
     .update({
       value: newValue,
     })
-    .eq("id", targetId)
+    .eq('id', targetId)
     .select();
 
   if (result.data && result.data.length > 0) {
@@ -615,18 +615,18 @@ async function updateTarget(
 }
 
 async function selectTarget(supabase: SupabaseClient, targetId: string) {
-  const result = await supabase.from("targets").select().eq("id", targetId);
+  const result = await supabase.from('targets').select().eq('id', targetId);
 
   return !!(result.data && result.data.length > 0);
 }
 
 async function deleteTarget(supabase: SupabaseClient, targetId: string) {
-  const result = await supabase.from("targets").delete().eq("id", targetId);
+  const result = await supabase.from('targets').delete().eq('id', targetId);
 
   const resultSelect = await supabase
-    .from("targets")
+    .from('targets')
     .select()
-    .eq("id", targetId);
+    .eq('id', targetId);
 
   return (
     !resultSelect.error && resultSelect.data && resultSelect.data.length === 0
@@ -643,7 +643,7 @@ async function insertBody(
   purpose: string,
   value: string
 ) {
-  const result = await supabase.from("bodies").insert({
+  const result = await supabase.from('bodies').insert({
     id: bodyId,
     annotation_id: annotationId,
     layer_id: layerId,
@@ -655,7 +655,7 @@ async function insertBody(
 
   const supe = await loginAsServiceUser();
 
-  const resultSelect = await supe.from("bodies").select().eq("id", bodyId);
+  const resultSelect = await supe.from('bodies').select().eq('id', bodyId);
 
   return !!(resultSelect.data && resultSelect.data.length > 0);
 }
@@ -666,11 +666,11 @@ async function updateBody(
   newValue: string
 ) {
   const result = await supabase
-    .from("bodies")
+    .from('bodies')
     .update({
       value: newValue,
     })
-    .eq("id", bodyId)
+    .eq('id', bodyId)
     .select();
 
   if (result.data && result.data.length > 0) {
@@ -681,15 +681,15 @@ async function updateBody(
 }
 
 async function selectBody(supabase: SupabaseClient, bodyId: string) {
-  const result = await supabase.from("bodies").select().eq("id", bodyId);
+  const result = await supabase.from('bodies').select().eq('id', bodyId);
 
   return !!(result.data && result.data.length > 0);
 }
 
 async function deleteBody(supabase: SupabaseClient, bodyId: string) {
-  const result = await supabase.from("bodies").delete().eq("id", bodyId);
+  const result = await supabase.from('bodies').delete().eq('id', bodyId);
 
-  const resultSelect = await supabase.from("bodies").select().eq("id", bodyId);
+  const resultSelect = await supabase.from('bodies').select().eq('id', bodyId);
 
   return (
     !resultSelect.error && resultSelect.data && resultSelect.data.length === 0
@@ -702,16 +702,16 @@ async function selectLayerContext(
   contextId: string
 ) {
   const result = await supabase
-    .from("layer_contexts")
+    .from('layer_contexts')
     .select()
-    .eq("context_id", contextId)
-    .eq("layer_id", layerId);
+    .eq('context_id', contextId)
+    .eq('layer_id', layerId);
 
   return !result.error && result.data && result.data.length > 0;
 }
 
 async function getOrganizationPolicies(supabase: SupabaseClient) {
-  const result = await supabase.rpc("get_organization_policies");
+  const result = await supabase.rpc('get_organization_policies');
 
   if (!result.error) {
     // console.table(result.data);
@@ -724,7 +724,7 @@ async function getOrganizationPolicies(supabase: SupabaseClient) {
 }
 
 async function getProjectPolicies(supabase: SupabaseClient, projectId: string) {
-  const result = await supabase.rpc("get_project_policies", {
+  const result = await supabase.rpc('get_project_policies', {
     _project_id: projectId,
   });
 
@@ -740,7 +740,7 @@ async function getProjectPolicies(supabase: SupabaseClient, projectId: string) {
 }
 
 async function getLayerPolicies(supabase: SupabaseClient, layerId: string) {
-  const result = await supabase.rpc("get_layer_policies", {
+  const result = await supabase.rpc('get_layer_policies', {
     _layer_id: layerId,
   });
 
@@ -764,14 +764,14 @@ async function createInvite(
   projectGroupId: string
 ) {
   const result = await supabase
-    .from("invites")
+    .from('invites')
     .insert({
       id: inviteId,
       invited_by_name: invitedByName,
       email: email,
       project_id: projectId,
       project_group_id: projectGroupId,
-      project_name: "A great project!",
+      project_name: 'A great project!',
     })
     .select();
 
@@ -787,9 +787,9 @@ async function createInvite(
 async function processInvite(
   supabase: SupabaseClient,
   inviteId: string,
-  action: "accept" | "ignore"
+  action: 'accept' | 'ignore'
 ) {
-  const result = await supabase.rpc("process_invite", {
+  const result = await supabase.rpc('process_invite', {
     _invite_id: inviteId,
     _option: action,
   });
@@ -809,7 +809,7 @@ async function processInvite(
 }
 
 async function getMyProjects(supabase: SupabaseClient) {
-  const result = await supabase.rpc("get_my_projects");
+  const result = await supabase.rpc('get_my_projects');
 
   if (!result.error) {
     // console.log("My Projects:");
@@ -825,7 +825,7 @@ async function getMyProjects(supabase: SupabaseClient) {
 }
 
 async function getMyOrgRole(supabase: SupabaseClient) {
-  const result = await supabase.rpc("get_my_org_role");
+  const result = await supabase.rpc('get_my_org_role');
 
   if (!result.error) {
     // console.log("My Org Role: ", result.data);
@@ -840,7 +840,7 @@ async function getMyOrgRole(supabase: SupabaseClient) {
 }
 
 async function getMyProjectRole(supabase: SupabaseClient, projectId: string) {
-  const result = await supabase.rpc("get_my_project_role", {
+  const result = await supabase.rpc('get_my_project_role', {
     _project_id: projectId,
   });
 
@@ -857,7 +857,7 @@ async function getMyProjectRole(supabase: SupabaseClient, projectId: string) {
 }
 
 async function getMyLayerRole(supabase: SupabaseClient, layerId: string) {
-  const result = await supabase.rpc("get_my_layer_role", {
+  const result = await supabase.rpc('get_my_layer_role', {
     _layer_id: layerId,
   });
 
@@ -873,10 +873,14 @@ async function getMyLayerRole(supabase: SupabaseClient, layerId: string) {
   return false;
 }
 
-async function getMyLayerContexts(supabase: SupabaseClient, context_id: string) {
+async function getMyLayerContexts(
+  supabase: SupabaseClient,
+  context_id: string
+) {
   const result = await supabase
-      .from('layer_contexts')
-      .select(`
+    .from('layer_contexts')
+    .select(
+      `
       context:contexts (
         id,
         name,
@@ -900,8 +904,9 @@ async function getMyLayerContexts(supabase: SupabaseClient, context_id: string) 
           description
         )
       )
-    `)
-      .eq('context_id', context_id);
+    `
+    )
+    .eq('context_id', context_id);
 
   if (!result.error) {
     // console.log("My Layer Role: ", result.data);
@@ -918,17 +923,17 @@ beforeAll(async () => {
   const supabase = await loginAsOrgAdmin();
 
   if (supabase) {
-    supabase.from("projects").delete().eq("id", TEST_PROJECT_ID);
+    supabase.from('projects').delete().eq('id', TEST_PROJECT_ID);
   }
 });
 
-test("Login as Org Admin", async () => {
+test('Login as Org Admin', async () => {
   const supabase = await loginAsOrgAdmin();
 
   expect(supabase).not.toBe(null);
 });
 
-test("Org Admins can create projects", async () => {
+test('Org Admins can create projects', async () => {
   const supabase = await loginAsOrgAdmin();
 
   if (supabase) {
@@ -936,8 +941,8 @@ test("Org Admins can create projects", async () => {
       await insertProject(
         supabase,
         TEST_PROJECT_ID,
-        "Test Project",
-        "A test project"
+        'Test Project',
+        'A test project'
       );
 
     expect(data.length).not.toBe(0);
@@ -946,12 +951,12 @@ test("Org Admins can create projects", async () => {
   }
 });
 
-test("Org Admins can read projects", async () => {
+test('Org Admins can read projects', async () => {
   const supabase = await loginAsOrgAdmin();
 
   if (supabase) {
     const { data }: { data: any | undefined; error: any | undefined } =
-      await readProjects(supabase, "Test Project", "A test project");
+      await readProjects(supabase, 'Test Project', 'A test project');
 
     expect(data.length).not.toBe(0);
   } else {
@@ -959,14 +964,14 @@ test("Org Admins can read projects", async () => {
   }
 });
 
-test("Org Admins can update projects", async () => {
+test('Org Admins can update projects', async () => {
   const supabase = await loginAsOrgAdmin();
 
   if (supabase) {
     const result = await updateProject(
       supabase,
-      "477577df-c156-4cca-9d7a-f96122c1362b",
-      "Test Project Updated"
+      '477577df-c156-4cca-9d7a-f96122c1362b',
+      'Test Project Updated'
     );
 
     expect(result).toBe(true);
@@ -975,13 +980,13 @@ test("Org Admins can update projects", async () => {
   }
 });
 
-test("Org Admins can delete projects", async () => {
+test('Org Admins can delete projects', async () => {
   const supabase = await loginAsOrgAdmin();
 
   if (supabase) {
     const result = await deleteProject(
       supabase,
-      "477577df-c156-4cca-9d7a-f96122c1362b"
+      '477577df-c156-4cca-9d7a-f96122c1362b'
     );
 
     expect(result).toBe(true);
@@ -990,14 +995,14 @@ test("Org Admins can delete projects", async () => {
   }
 });
 
-test("Professors can create projects", async () => {
+test('Professors can create projects', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await insertProject(
       supabase,
       TEST_PROJECT_ID,
-      "Professors Project",
-      "A test project"
+      'Professors Project',
+      'A test project'
     );
 
     expect(result.data?.length).toBeGreaterThan(0);
@@ -1006,7 +1011,7 @@ test("Professors can create projects", async () => {
   }
 });
 
-test("Professors can select projects they create", async () => {
+test('Professors can select projects they create', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await readProject(supabase, TEST_PROJECT_ID);
@@ -1017,13 +1022,13 @@ test("Professors can select projects they create", async () => {
   }
 });
 
-test("Professors can update projects they create", async () => {
+test('Professors can update projects they create', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await updateProject(
       supabase,
       TEST_PROJECT_ID,
-      "Updated Project Name"
+      'Updated Project Name'
     );
 
     expect(result).toBe(true);
@@ -1032,7 +1037,7 @@ test("Professors can update projects they create", async () => {
   }
 });
 
-test("Professors can select project groups from their project", async () => {
+test('Professors can select project groups from their project', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await getProjectGroups(supabase, TEST_PROJECT_ID);
@@ -1043,7 +1048,7 @@ test("Professors can select project groups from their project", async () => {
   }
 });
 
-test("Professors are a Project Admin of their project", async () => {
+test('Professors are a Project Admin of their project', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await getProjectGroups(supabase, TEST_PROJECT_ID);
@@ -1052,8 +1057,8 @@ test("Professors are a Project Admin of their project", async () => {
       const resultMembers = await isProjectGroupMember(
         supabase,
         TEST_PROJECT_ID,
-        "Project Admins",
-        "professor@example.com"
+        'Project Admins',
+        'professor@example.com'
       );
 
       expect(resultMembers).toBe(true);
@@ -1065,14 +1070,14 @@ test("Professors are a Project Admin of their project", async () => {
   }
 });
 
-test("Professors can add user to groups that belong to their project", async () => {
+test('Professors can add user to groups that belong to their project', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await addUserToProjectGroup(
       supabase,
       TEST_PROJECT_ID,
-      "Project Students",
-      "student@example.com"
+      'Project Users',
+      'student@example.com'
     );
 
     expect(result).toBe(true);
@@ -1081,14 +1086,14 @@ test("Professors can add user to groups that belong to their project", async () 
   }
 });
 
-test("Professors can insert contexts to their project", async () => {
+test('Professors can insert contexts to their project', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await addContextToProject(
       supabase,
       TEST_PROJECT_ID,
       TEST_CONTEXT_ID,
-      "Test Context"
+      'Test Context'
     );
 
     expect(result).toBe(true);
@@ -1097,7 +1102,7 @@ test("Professors can insert contexts to their project", async () => {
   }
 });
 
-test("Professors can read contexts in their projects", async () => {
+test('Professors can read contexts in their projects', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await readContext(supabase, TEST_CONTEXT_ID);
@@ -1108,7 +1113,7 @@ test("Professors can read contexts in their projects", async () => {
   }
 });
 
-test("Professors cannot delete contexts in their projects", async () => {
+test('Professors cannot delete contexts in their projects', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await deleteContext(supabase, TEST_CONTEXT_ID);
@@ -1119,15 +1124,15 @@ test("Professors cannot delete contexts in their projects", async () => {
   }
 });
 
-test("Professors can add documents", async () => {
+test('Professors can add documents', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await insertDocument(
       supabase,
       TEST_DOCUMENT_ID,
-      "Test Document",
-      "documents",
-      "text/plain"
+      'Test Document',
+      'documents',
+      'text/plain'
     );
 
     expect(result).toBe(true);
@@ -1136,7 +1141,7 @@ test("Professors can add documents", async () => {
   }
 });
 
-test("Professors can select documents for layers they see", async () => {
+test('Professors can select documents for layers they see', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await selectDocument(supabase, TEST_DOCUMENT_ID);
@@ -1147,14 +1152,14 @@ test("Professors can select documents for layers they see", async () => {
   }
 });
 
-test("Professors can add tutors to the Project Admin group", async () => {
+test('Professors can add tutors to the Project Admin group', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await addUserToProjectGroup(
       supabase,
       TEST_PROJECT_ID,
-      "Project Admins",
-      "tutor@example.com"
+      'Project Admins',
+      'tutor@example.com'
     );
 
     expect(result).toBe(true);
@@ -1163,15 +1168,15 @@ test("Professors can add tutors to the Project Admin group", async () => {
   }
 });
 
-test("Tutors cannot add documents", async () => {
+test('Tutors cannot add documents', async () => {
   const supabase = await loginAsTutor();
   if (supabase) {
     const result = await insertDocument(
-        supabase,
-        TEST_TUTOR_DOCUMENT_ID,
-        "Test Tutor Document",
-        "documents",
-        "text/plain"
+      supabase,
+      TEST_TUTOR_DOCUMENT_ID,
+      'Test Tutor Document',
+      'documents',
+      'text/plain'
     );
 
     expect(result).toBe(false);
@@ -1180,14 +1185,14 @@ test("Tutors cannot add documents", async () => {
   }
 });
 
-test("Professors cannot also add tutor to the Project Students group", async () => {
+test('Professors cannot also add tutor to the Project Students group', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await addUserToProjectGroup(
-        supabase,
-        TEST_PROJECT_ID,
-        "Project Students",
-        "tutor@example.com"
+      supabase,
+      TEST_PROJECT_ID,
+      'Project Users',
+      'tutor@example.com'
     );
 
     expect(result).toBe(false);
@@ -1196,7 +1201,7 @@ test("Professors cannot also add tutor to the Project Students group", async () 
   }
 });
 
-test("Professors can insert layers to their project", async () => {
+test('Professors can insert layers to their project', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await insertLayer(
@@ -1205,8 +1210,8 @@ test("Professors can insert layers to their project", async () => {
       TEST_CONTEXT_ID,
       TEST_LAYER_ID,
       TEST_DOCUMENT_ID,
-      "Test Layer",
-      "A test layer"
+      'Test Layer',
+      'A test layer'
     );
 
     expect(result).toBe(true);
@@ -1215,13 +1220,13 @@ test("Professors can insert layers to their project", async () => {
   }
 });
 
-test("Professors can update layers of their project", async () => {
+test('Professors can update layers of their project', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await updateLayer(
       supabase,
       TEST_LAYER_ID,
-      "Test Layer Updated"
+      'Test Layer Updated'
     );
 
     expect(result).toBe(true);
@@ -1230,7 +1235,7 @@ test("Professors can update layers of their project", async () => {
   }
 });
 
-test("Professors cannot delete layers", async () => {
+test('Professors cannot delete layers', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await deleteLayer(supabase, TEST_LAYER_ID);
@@ -1241,14 +1246,14 @@ test("Professors cannot delete layers", async () => {
   }
 });
 
-test("Tutors can update projects", async () => {
+test('Tutors can update projects', async () => {
   const supabase = await loginAsTutor();
 
   if (supabase) {
     const result = await updateProject(
-        supabase,
-        TEST_PROJECT_ID,
-        "Tutor Update"
+      supabase,
+      TEST_PROJECT_ID,
+      'Tutor Update'
     );
 
     expect(result).toBe(true);
@@ -1257,7 +1262,7 @@ test("Tutors can update projects", async () => {
   }
 });
 
-test("Tutors can select Documents from their Project", async () => {
+test('Tutors can select Documents from their Project', async () => {
   const supabase = await loginAsTutor();
   if (supabase) {
     const result = await selectDocument(supabase, TEST_DOCUMENT_ID);
@@ -1268,7 +1273,7 @@ test("Tutors can select Documents from their Project", async () => {
   }
 });
 
-test("Tutors can select Contexts from their Project", async () => {
+test('Tutors can select Contexts from their Project', async () => {
   const supabase = await loginAsTutor();
   if (supabase) {
     const result = await readContext(supabase, TEST_CONTEXT_ID);
@@ -1279,7 +1284,7 @@ test("Tutors can select Contexts from their Project", async () => {
   }
 });
 
-test("Tutors can select Layers from their Project", async () => {
+test('Tutors can select Layers from their Project', async () => {
   const supabase = await loginAsTutor();
   if (supabase) {
     const result = await readLayer(supabase, TEST_LAYER_ID);
@@ -1290,7 +1295,7 @@ test("Tutors can select Layers from their Project", async () => {
   }
 });
 
-test("Tutors can select Layer Context from their Project", async () => {
+test('Tutors can select Layer Context from their Project', async () => {
   const supabase = await loginAsTutor();
   if (supabase) {
     const result = await selectLayerContext(
@@ -1305,7 +1310,7 @@ test("Tutors can select Layer Context from their Project", async () => {
   }
 });
 
-test("Professors can select layer groups", async () => {
+test('Professors can select layer groups', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1321,14 +1326,14 @@ test("Professors can select layer groups", async () => {
   }
 });
 
-test("Professors can add user to layer groups that belong to their layer", async () => {
+test('Professors can add user to layer groups that belong to their layer', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await addUserToLayerGroup(
       supabase,
       TEST_LAYER_ID,
-      "Layer Student",
-      "student@example.com"
+      'Layer Users',
+      'student@example.com'
     );
 
     expect(result).toBe(true);
@@ -1337,16 +1342,16 @@ test("Professors can add user to layer groups that belong to their layer", async
   }
 });
 
-test("Students cannot create projects", async () => {
+test('Students cannot create projects', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
     const { error }: { data: any | undefined; error: any | undefined } =
       await insertProject(
         supabase,
-        "15517847-b0d9-4631-aaf7-8823fd4d806d",
-        "Failed Project Create",
-        "A test project"
+        '15517847-b0d9-4631-aaf7-8823fd4d806d',
+        'Failed Project Create',
+        'A test project'
       );
 
     expect(error).not.toBe(null);
@@ -1355,14 +1360,14 @@ test("Students cannot create projects", async () => {
   }
 });
 
-test("Students cannot update projects", async () => {
+test('Students cannot update projects', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
     const result = await updateProject(
       supabase,
       TEST_PROJECT_ID,
-      "Failed Project update"
+      'Failed Project update'
     );
 
     expect(result).toBe(false);
@@ -1371,7 +1376,7 @@ test("Students cannot update projects", async () => {
   }
 });
 
-test("Students can read projects they are a member of", async () => {
+test('Students can read projects they are a member of', async () => {
   let supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1383,7 +1388,7 @@ test("Students can read projects they are a member of", async () => {
   }
 });
 
-test("Students cannot read projects they are not a member of", async () => {
+test('Students cannot read projects they are not a member of', async () => {
   let supabase = await loginAsProfessor();
 
   if (!supabase) {
@@ -1392,7 +1397,7 @@ test("Students cannot read projects they are not a member of", async () => {
     const resultCreate = await insertProject(
       supabase,
       NO_STUDENT_PROJECT_ID,
-      "Not Student Project",
+      'Not Student Project',
       "Student can't read this"
     );
 
@@ -1412,7 +1417,7 @@ test("Students cannot read projects they are not a member of", async () => {
   }
 });
 
-test("Students can read contexts in projects they are a member of", async () => {
+test('Students can read contexts in projects they are a member of', async () => {
   const supabase = await loginAsStudent();
   if (supabase) {
     const result = await readContext(supabase, TEST_CONTEXT_ID);
@@ -1423,14 +1428,14 @@ test("Students can read contexts in projects they are a member of", async () => 
   }
 });
 
-test("Students cannot insert contexts to projects", async () => {
+test('Students cannot insert contexts to projects', async () => {
   const supabase = await loginAsStudent();
   if (supabase) {
     const result = await addContextToProject(
       supabase,
       TEST_PROJECT_ID,
-      "8da178bb-459e-4875-8422-ff12e58541b4",
-      "Context Should Not Be Created"
+      '8da178bb-459e-4875-8422-ff12e58541b4',
+      'Context Should Not Be Created'
     );
 
     expect(result).toBe(false);
@@ -1439,7 +1444,7 @@ test("Students cannot insert contexts to projects", async () => {
   }
 });
 
-test("Students cannot delete contexts in projects they are a member of", async () => {
+test('Students cannot delete contexts in projects they are a member of', async () => {
   const supabase = await loginAsStudent();
   if (supabase) {
     const result = await deleteContext(supabase, TEST_CONTEXT_ID);
@@ -1450,7 +1455,7 @@ test("Students cannot delete contexts in projects they are a member of", async (
   }
 });
 
-test("Students cannot insert layers to a project", async () => {
+test('Students cannot insert layers to a project', async () => {
   const supabase = await loginAsStudent();
   if (supabase) {
     const result = await insertLayer(
@@ -1458,9 +1463,9 @@ test("Students cannot insert layers to a project", async () => {
       TEST_PROJECT_ID,
       TEST_CONTEXT_ID,
       TEST_DOCUMENT_ID,
-      "e97d17d8-c9c3-48d8-8963-102d408b741a",
-      "Prohibited Layer",
-      "A test prohibited layer"
+      'e97d17d8-c9c3-48d8-8963-102d408b741a',
+      'Prohibited Layer',
+      'A test prohibited layer'
     );
 
     expect(result).toBe(false);
@@ -1469,13 +1474,13 @@ test("Students cannot insert layers to a project", async () => {
   }
 });
 
-test("Students cannot update layers of their project", async () => {
+test('Students cannot update layers of their project', async () => {
   const supabase = await loginAsStudent();
   if (supabase) {
     const result = await updateLayer(
       supabase,
       TEST_LAYER_ID,
-      "Prohibited Test Layer Update"
+      'Prohibited Test Layer Update'
     );
 
     expect(result).toBe(false);
@@ -1484,7 +1489,7 @@ test("Students cannot update layers of their project", async () => {
   }
 });
 
-test("Students cannot delete layers", async () => {
+test('Students cannot delete layers', async () => {
   const supabase = await loginAsStudent();
   if (supabase) {
     const result = await deleteLayer(supabase, TEST_LAYER_ID);
@@ -1495,7 +1500,7 @@ test("Students cannot delete layers", async () => {
   }
 });
 
-test("Students can create public annotations on layers that they have membership", async () => {
+test('Students can create public annotations on layers that they have membership', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1512,7 +1517,7 @@ test("Students can create public annotations on layers that they have membership
   }
 });
 
-test("Professors can select public annotations in their projects", async () => {
+test('Professors can select public annotations in their projects', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await selectAnnotation(supabase, TEST_PUBLIC_ANNOTATION_ID);
@@ -1523,7 +1528,7 @@ test("Professors can select public annotations in their projects", async () => {
   }
 });
 
-test("Students can create private annotations on layers that they have membership", async () => {
+test('Students can create private annotations on layers that they have membership', async () => {
   const supabase = await loginAsStudent();
   if (supabase) {
     const result = await insertAnnotation(
@@ -1539,7 +1544,7 @@ test("Students can create private annotations on layers that they have membershi
   }
 });
 
-test("Professors cannot select private annotations in their projects", async () => {
+test('Professors cannot select private annotations in their projects', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
     const result = await selectAnnotation(supabase, TEST_PRIVATE_ANNOTATION_ID);
@@ -1550,7 +1555,7 @@ test("Professors cannot select private annotations in their projects", async () 
   }
 });
 
-test("Professors can create public annotations on layers that they have membership", async () => {
+test('Professors can create public annotations on layers that they have membership', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1567,7 +1572,7 @@ test("Professors can create public annotations on layers that they have membersh
   }
 });
 
-test("Students can create targets on Annotations they create", async () => {
+test('Students can create targets on Annotations they create', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1576,9 +1581,9 @@ test("Students can create targets on Annotations they create", async () => {
       TEST_PUBLIC_TARGET_ID,
       TEST_PUBLIC_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "SvgSelector",
-      "Svg",
-      "a value"
+      'SvgSelector',
+      'Svg',
+      'a value'
     );
 
     expect(result).toBe(true);
@@ -1587,7 +1592,7 @@ test("Students can create targets on Annotations they create", async () => {
   }
 });
 
-test("Professors cannot create targets on Annotations they did not create", async () => {
+test('Professors cannot create targets on Annotations they did not create', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1596,9 +1601,9 @@ test("Professors cannot create targets on Annotations they did not create", asyn
       TEST_CANNOT_CREATE_TARGET_ID,
       TEST_PUBLIC_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "SvgSelector",
-      "Svg",
-      "a value that does not matter"
+      'SvgSelector',
+      'Svg',
+      'a value that does not matter'
     );
 
     expect(result).toBe(false);
@@ -1607,7 +1612,7 @@ test("Professors cannot create targets on Annotations they did not create", asyn
   }
 });
 
-test("Students cannot create targets on Annotations they did not create", async () => {
+test('Students cannot create targets on Annotations they did not create', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1616,9 +1621,9 @@ test("Students cannot create targets on Annotations they did not create", async 
       TEST_CANNOT_CREATE_TARGET_ID,
       TEST_PROFESSOR_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "SvgSelector",
-      "Svg",
-      "a value that does not matter"
+      'SvgSelector',
+      'Svg',
+      'a value that does not matter'
     );
 
     expect(result).toBe(false);
@@ -1627,7 +1632,7 @@ test("Students cannot create targets on Annotations they did not create", async 
   }
 });
 
-test("Professors can create targets on Annotations they create", async () => {
+test('Professors can create targets on Annotations they create', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1636,9 +1641,9 @@ test("Professors can create targets on Annotations they create", async () => {
       TEST_PROFESSOR_TARGET_ID,
       TEST_PROFESSOR_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "SvgSelector",
-      "Svg",
-      "a value"
+      'SvgSelector',
+      'Svg',
+      'a value'
     );
 
     expect(result).toBe(true);
@@ -1647,7 +1652,7 @@ test("Professors can create targets on Annotations they create", async () => {
   }
 });
 
-test("Students can select targets on Annotations they did not create but are in their layer", async () => {
+test('Students can select targets on Annotations they did not create but are in their layer', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1659,7 +1664,7 @@ test("Students can select targets on Annotations they did not create but are in 
   }
 });
 
-test("Professors can select targets on Annotations they did not create but are in their layer", async () => {
+test('Professors can select targets on Annotations they did not create but are in their layer', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1671,7 +1676,7 @@ test("Professors can select targets on Annotations they did not create but are i
   }
 });
 
-test("Students can create targets on private Annotations they create", async () => {
+test('Students can create targets on private Annotations they create', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1680,9 +1685,9 @@ test("Students can create targets on private Annotations they create", async () 
       TEST_PRIVATE_TARGET_ID,
       TEST_PRIVATE_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "SvgSelector",
-      "Svg",
-      "a value"
+      'SvgSelector',
+      'Svg',
+      'a value'
     );
 
     expect(result).toBe(true);
@@ -1691,7 +1696,7 @@ test("Students can create targets on private Annotations they create", async () 
   }
 });
 
-test("Professors cannot select targets on private Annotations they did not create but are in their layer", async () => {
+test('Professors cannot select targets on private Annotations they did not create but are in their layer', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1703,7 +1708,7 @@ test("Professors cannot select targets on private Annotations they did not creat
   }
 });
 
-test("Students can select targets on private Annotations they creates", async () => {
+test('Students can select targets on private Annotations they creates', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1715,7 +1720,7 @@ test("Students can select targets on private Annotations they creates", async ()
   }
 });
 
-test("Students cannot delete targets on public Annotations they creates", async () => {
+test('Students cannot delete targets on public Annotations they creates', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1727,7 +1732,7 @@ test("Students cannot delete targets on public Annotations they creates", async 
   }
 });
 
-test("Professors cannot delete targets on public Annotations they creates", async () => {
+test('Professors cannot delete targets on public Annotations they creates', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1739,7 +1744,7 @@ test("Professors cannot delete targets on public Annotations they creates", asyn
   }
 });
 
-test("Professor cannot create the first body on Annotations they did not create", async () => {
+test('Professor cannot create the first body on Annotations they did not create', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1748,10 +1753,10 @@ test("Professor cannot create the first body on Annotations they did not create"
       TEST_CANNOT_CREATE_BODY_ID,
       TEST_PUBLIC_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "TextualBody",
-      "TextPlain",
-      "a purpose",
-      "a student trying to create the first"
+      'TextualBody',
+      'TextPlain',
+      'a purpose',
+      'a student trying to create the first'
     );
 
     expect(result).toBe(false);
@@ -1760,7 +1765,7 @@ test("Professor cannot create the first body on Annotations they did not create"
   }
 });
 
-test("Students can create the first body on Annotations they created", async () => {
+test('Students can create the first body on Annotations they created', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1769,10 +1774,10 @@ test("Students can create the first body on Annotations they created", async () 
       TEST_PUBLIC_BODY_ID,
       TEST_PUBLIC_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "TextualBody",
-      "TextPlain",
-      "a purpose",
-      "Student creating the first"
+      'TextualBody',
+      'TextPlain',
+      'a purpose',
+      'Student creating the first'
     );
 
     expect(result).toBe(true);
@@ -1781,7 +1786,7 @@ test("Students can create the first body on Annotations they created", async () 
   }
 });
 
-test("Professors can create subsequent bodies on Annotations they did not create", async () => {
+test('Professors can create subsequent bodies on Annotations they did not create', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1790,10 +1795,10 @@ test("Professors can create subsequent bodies on Annotations they did not create
       TEST_SECOND_BODY_ID,
       TEST_PUBLIC_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "TextualBody",
-      "TextPlain",
-      "a purpose",
-      "Professor adding a second"
+      'TextualBody',
+      'TextPlain',
+      'a purpose',
+      'Professor adding a second'
     );
 
     expect(result).toBe(true);
@@ -1802,7 +1807,7 @@ test("Professors can create subsequent bodies on Annotations they did not create
   }
 });
 
-test("Professors can archive their own bodies on Annotations they did not create", async () => {
+test('Professors can archive their own bodies on Annotations they did not create', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1814,7 +1819,7 @@ test("Professors can archive their own bodies on Annotations they did not create
   }
 });
 
-test("Students can create the first body on private Annotations they created", async () => {
+test('Students can create the first body on private Annotations they created', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -1823,10 +1828,10 @@ test("Students can create the first body on private Annotations they created", a
       TEST_PRIVATE_BODY_ID,
       TEST_PRIVATE_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "TextualBody",
-      "TextPlain",
-      "a purpose",
-      "Student creating the first on private"
+      'TextualBody',
+      'TextPlain',
+      'a purpose',
+      'Student creating the first on private'
     );
 
     expect(result).toBe(true);
@@ -1835,7 +1840,7 @@ test("Students can create the first body on private Annotations they created", a
   }
 });
 
-test("Tutor can create public annotation", async () => {
+test('Tutor can create public annotation', async () => {
   const supabase = await loginAsTutor();
 
   if (supabase) {
@@ -1852,14 +1857,14 @@ test("Tutor can create public annotation", async () => {
   }
 });
 
-test("Students cannot update other peoples public annotation", async () => {
+test('Students cannot update other peoples public annotation', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
     const result = await updateAnnotation(
-        supabase,
-        TEST_TUTOR_ANNOTATION_ID,
-        true
+      supabase,
+      TEST_TUTOR_ANNOTATION_ID,
+      true
     );
 
     expect(result).toBe(false);
@@ -1868,7 +1873,7 @@ test("Students cannot update other peoples public annotation", async () => {
   }
 });
 
-test("Tutor can create target on their annotation", async () => {
+test('Tutor can create target on their annotation', async () => {
   const supabase = await loginAsTutor();
 
   if (supabase) {
@@ -1877,9 +1882,9 @@ test("Tutor can create target on their annotation", async () => {
       TEST_TUTOR_TARGET_ID,
       TEST_TUTOR_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "Fragment",
-      "Svg",
-      "Test Tutor Target"
+      'Fragment',
+      'Svg',
+      'Test Tutor Target'
     );
 
     expect(result).toBe(true);
@@ -1888,7 +1893,7 @@ test("Tutor can create target on their annotation", async () => {
   }
 });
 
-test("Tutor can create body on their annotation", async () => {
+test('Tutor can create body on their annotation', async () => {
   const supabase = await loginAsTutor();
 
   if (supabase) {
@@ -1897,10 +1902,10 @@ test("Tutor can create body on their annotation", async () => {
       TEST_TUTOR_BODY_ID,
       TEST_TUTOR_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "TextualBody",
-      "TextPlain",
-      "Test Tutor purpose",
-      "Tutor Body"
+      'TextualBody',
+      'TextPlain',
+      'Test Tutor purpose',
+      'Tutor Body'
     );
 
     expect(result).toBe(true);
@@ -1909,7 +1914,7 @@ test("Tutor can create body on their annotation", async () => {
   }
 });
 
-test("Professors cannot create subsequent bodies on private Annotations they did not create", async () => {
+test('Professors cannot create subsequent bodies on private Annotations they did not create', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1918,9 +1923,9 @@ test("Professors cannot create subsequent bodies on private Annotations they did
       TEST_CANNOT_CREATE_BODY_ID,
       TEST_PRIVATE_ANNOTATION_ID,
       TEST_LAYER_ID,
-      "TextualBody",
-      "TextPlain",
-      "a purpose",
+      'TextualBody',
+      'TextPlain',
+      'a purpose',
       "Professor can't add a second"
     );
 
@@ -1930,7 +1935,7 @@ test("Professors cannot create subsequent bodies on private Annotations they did
   }
 });
 
-test("Professors can make thier own public annotations private", async () => {
+test('Professors can make thier own public annotations private', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1946,7 +1951,7 @@ test("Professors can make thier own public annotations private", async () => {
   }
 });
 
-test("Professors can archive annotations they created", async () => {
+test('Professors can archive annotations they created', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1961,7 +1966,7 @@ test("Professors can archive annotations they created", async () => {
   }
 });
 
-test("Professors can get their org policies", async () => {
+test('Professors can get their org policies', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1973,7 +1978,7 @@ test("Professors can get their org policies", async () => {
   }
 });
 
-test("Professors can get their project policies", async () => {
+test('Professors can get their project policies', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1985,7 +1990,7 @@ test("Professors can get their project policies", async () => {
   }
 });
 
-test("Professors can get their layer policies", async () => {
+test('Professors can get their layer policies', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -1997,14 +2002,14 @@ test("Professors can get their layer policies", async () => {
   }
 });
 
-test("Professors can check if a student is a member of their project", async () => {
+test('Professors can check if a student is a member of their project', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
     const result = await checkProjectMembership(
       supabase,
       TEST_PROJECT_ID,
-      "student@example.com"
+      'student@example.com'
     );
 
     expect(result).toBe(true);
@@ -2013,14 +2018,14 @@ test("Professors can check if a student is a member of their project", async () 
   }
 });
 
-test("Professors can check if a student is not a member of their project", async () => {
+test('Professors can check if a student is not a member of their project', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
     const result = await checkProjectMembership(
       supabase,
       TEST_PROJECT_ID,
-      "noone@example.com"
+      'noone@example.com'
     );
 
     expect(result).toBe(false);
@@ -2029,7 +2034,7 @@ test("Professors can check if a student is not a member of their project", async
   }
 });
 
-test("Professors can invite stidents to their project", async () => {
+test('Professors can invite stidents to their project', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -2037,15 +2042,15 @@ test("Professors can invite stidents to their project", async () => {
 
     if (groups && groups.data) {
       const projectStudentsGroup = groups.data.find(
-        (g: any) => (g.name = "Project Students")
+        (g: any) => (g.name = 'Project Users')
       );
 
       if (projectStudentsGroup) {
         const result = await createInvite(
           supabase,
           TEST_INVITE_ID,
-          "Joe Professor",
-          "invited@example.com",
+          'Joe Professor',
+          'invited@example.com',
           TEST_PROJECT_ID,
           projectStudentsGroup.id
         );
@@ -2062,11 +2067,11 @@ test("Professors can invite stidents to their project", async () => {
   }
 });
 
-test("Invited user can process an invite", async () => {
+test('Invited user can process an invite', async () => {
   const supabase = await loginAsInvited();
 
   if (supabase) {
-    const result = await processInvite(supabase, TEST_INVITE_ID, "accept");
+    const result = await processInvite(supabase, TEST_INVITE_ID, 'accept');
 
     expect(result).toBe(true);
   } else {
@@ -2074,14 +2079,14 @@ test("Invited user can process an invite", async () => {
   }
 });
 
-test("Professors can check if a student is a member of their project", async () => {
+test('Professors can check if a student is a member of their project', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
     const result = await checkProjectMembership(
       supabase,
       TEST_PROJECT_ID,
-      "student@example.com"
+      'student@example.com'
     );
 
     expect(result).toBe(true);
@@ -2090,7 +2095,7 @@ test("Professors can check if a student is a member of their project", async () 
   }
 });
 
-test("Professors can get their list of projects", async () => {
+test('Professors can get their list of projects', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -2102,7 +2107,7 @@ test("Professors can get their list of projects", async () => {
   }
 });
 
-test("Students can get their list of projects", async () => {
+test('Students can get their list of projects', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -2114,7 +2119,7 @@ test("Students can get their list of projects", async () => {
   }
 });
 
-test("Professors can get their Org Role", async () => {
+test('Professors can get their Org Role', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -2126,7 +2131,7 @@ test("Professors can get their Org Role", async () => {
   }
 });
 
-test("Students can get their Org Role", async () => {
+test('Students can get their Org Role', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -2138,7 +2143,7 @@ test("Students can get their Org Role", async () => {
   }
 });
 
-test("Professors can get their Project Role", async () => {
+test('Professors can get their Project Role', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -2150,7 +2155,7 @@ test("Professors can get their Project Role", async () => {
   }
 });
 
-test("Tutor can get their Project Role", async () => {
+test('Tutor can get their Project Role', async () => {
   const supabase = await loginAsTutor();
 
   if (supabase) {
@@ -2162,7 +2167,7 @@ test("Tutor can get their Project Role", async () => {
   }
 });
 
-test("Students can get their Project Role", async () => {
+test('Students can get their Project Role', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -2174,7 +2179,7 @@ test("Students can get their Project Role", async () => {
   }
 });
 
-test("Professors can get their Layer Role", async () => {
+test('Professors can get their Layer Role', async () => {
   const supabase = await loginAsProfessor();
 
   if (supabase) {
@@ -2186,7 +2191,7 @@ test("Professors can get their Layer Role", async () => {
   }
 });
 
-test("Tutor can get a Layer Role for which they have not been added", async () => {
+test('Tutor can get a Layer Role for which they have not been added', async () => {
   const supabase = await loginAsTutor();
 
   if (supabase) {
@@ -2198,7 +2203,7 @@ test("Tutor can get a Layer Role for which they have not been added", async () =
   }
 });
 
-test("Students can get their Layer Role", async () => {
+test('Students can get their Layer Role', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {
@@ -2210,7 +2215,7 @@ test("Students can get their Layer Role", async () => {
   }
 });
 
-test("Students can get their layer contexts", async () => {
+test('Students can get their layer contexts', async () => {
   const supabase = await loginAsStudent();
 
   if (supabase) {

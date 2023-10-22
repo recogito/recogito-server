@@ -85,6 +85,7 @@ const main = async (options) => {
   let organizationGroupInserts = [];
   config.org_groups.forEach((orgGroup) => {
     organizationGroupInserts.push({
+      id: orgGroup.id,
       role_id: orgGroup.role_id,
       name: orgGroup.name,
       description: orgGroup.description,
@@ -102,7 +103,7 @@ const main = async (options) => {
   const getOrgAdminResponse = await supabase
     .from('organization_groups')
     .select()
-    .eq('name', 'Org Admin');
+    .eq('id', '350abe76-937b-4a9b-9600-9b1f856db250');
 
   console.info('Organization Admin Group: ');
   console.table(getOrgAdminResponse.data);
@@ -273,6 +274,15 @@ const main = async (options) => {
         }
       }
     }
+  }
+
+  // Make sure we have a 'documents' bucket
+  const bucketResp = await supabase.storage.getBucket('documents');
+
+  if (bucketResp.error || bucketResp.data.length === 0) {
+    const { data, error } = await supabase.storage.createBucket('documents', {
+      public: false,
+    });
   }
 };
 

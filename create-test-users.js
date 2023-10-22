@@ -28,7 +28,7 @@ const main = async (options) => {
 
   await supabase.auth.signUp({
     email: 'professor@example.com',
-    password: 'M3vRfLp!e@RQ',
+    password: process.env.PROFESSOR_PW,
   });
 
   supabase = Supa.createClient(
@@ -49,7 +49,7 @@ const main = async (options) => {
   const orgProfessorGroupResp = await supabase
     .from('organization_groups')
     .select()
-    .eq('name', 'Org Professors');
+    .eq('id', process.env.PROFESSOR_GROUP_ID);
 
   const groupUserResp = await supabase.from('group_users').insert({
     type_id: orgProfessorGroupResp.data[0].id,
@@ -61,7 +61,7 @@ const main = async (options) => {
 
   await supabase.auth.signUp({
     email: 'student@example.com',
-    password: '$#9zp6Sb3iyh',
+    password: process.env.STUDENT_PW,
   });
 
   supabase = Supa.createClient(
@@ -82,7 +82,7 @@ const main = async (options) => {
   const orgReadersGroupResp = await supabase
     .from('organization_groups')
     .select()
-    .eq('name', 'Org Readers');
+    .eq('id', process.env.STUDENT_GROUP_ID);
 
   const groupReaderResp = await supabase.from('group_users').insert({
     type_id: orgReadersGroupResp.data[0].id,
@@ -92,7 +92,7 @@ const main = async (options) => {
 
   await supabase.auth.signUp({
     email: 'tutor@example.com',
-    password: 'E1JdlD$IbYr9',
+    password: process.env.TUTOR_PW,
   });
 
   const tutorProfile = await supabase
@@ -118,7 +118,7 @@ const main = async (options) => {
 
   await supabase.auth.signUp({
     email: 'reader@example.com',
-    password: '&zZ#oMdFkN$5',
+    password: process.env.READER_PW,
   });
 
   supabase = Supa.createClient(
@@ -144,7 +144,7 @@ const main = async (options) => {
 
   await supabase.auth.signUp({
     email: 'invited@example.com',
-    password: '&zZ#oMdFyheb',
+    password: process.env.INVITE_PW,
   });
 
   supabase = Supa.createClient(
