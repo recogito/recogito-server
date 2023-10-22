@@ -101,7 +101,7 @@ const main = async (options) => {
     });
 
   const orgAdminGroup = organizationGroupInserts.find(
-    (g) => (g.is_admin = true)
+    (g) => g.is_admin === true
   );
 
   const getOrgAdminResponse = await supabase
