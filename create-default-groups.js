@@ -103,7 +103,7 @@ const main = async (options) => {
   const getOrgAdminResponse = await supabase
     .from('organization_groups')
     .select()
-    .eq('id', '350abe76-937b-4a9b-9600-9b1f856db250');
+    .eq('id', orgGroup.id);
 
   console.info('Organization Admin Group: ');
   console.table(getOrgAdminResponse.data);
