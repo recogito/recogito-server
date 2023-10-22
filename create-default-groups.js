@@ -100,10 +100,14 @@ const main = async (options) => {
       ignoreDuplicates: true,
     });
 
+  const orgAdminGroup = organizationGroupInserts.find(
+    (g) => (g.is_admin = true)
+  );
+
   const getOrgAdminResponse = await supabase
     .from('organization_groups')
     .select()
-    .eq('id', orgGroup.id);
+    .eq('id', orgAdminGroup.id);
 
   console.info('Organization Admin Group: ');
   console.table(getOrgAdminResponse.data);
