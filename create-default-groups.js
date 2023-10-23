@@ -121,9 +121,10 @@ const main = async (options) => {
   // if no Admin found, create one
   if (orgAdminProfile.data.length === 0) {
     // Create the Admin user
-    const createAdminUserResponse = await supabase.auth.signUp({
+    const createAdminUserResponse = await supabase.auth.admin.createUser({
       email: config.admin.admin_email,
       password: process.env.ORG_ADMIN_PW,
+      email_confirm: true,
     });
 
     supabase = createClient(
