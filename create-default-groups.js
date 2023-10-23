@@ -289,6 +289,13 @@ const main = async (options) => {
       public: false,
     });
   }
+
+  // Make sure we have a DEFAULT_CONTEXT tag_definition
+  const tagCreateResp = await supabase.from('tag_definitions').upsert({
+    name: 'DEFAULT_CONTEXT',
+    target_type: 'context',
+    scope: 'system',
+  });
 };
 
 const optionDefinitions = [
