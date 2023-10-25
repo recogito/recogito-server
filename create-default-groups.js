@@ -291,11 +291,14 @@ const main = async (options) => {
   }
 
   // Make sure we have a DEFAULT_CONTEXT tag_definition
-  const tagCreateResp = await supabase.from('tag_definitions').upsert({
-    name: 'DEFAULT_CONTEXT',
-    target_type: 'context',
-    scope: 'system',
-  });
+  const tagCreateResp = await supabase.from('tag_definitions').upsert(
+    {
+      name: 'DEFAULT_CONTEXT',
+      target_type: 'context',
+      scope: 'system',
+    },
+    { onConflict: 'name, target_type, scope' }
+  );
 };
 
 const optionDefinitions = [
