@@ -1,0 +1,7 @@
+-- drop policy "Enable ALL access for authenticated users" on "public"."organization_groups";
+--
+-- drop policy "Enable ALL access for authenticated users" on "public"."project_groups";
+--
+-- drop policy "Enable ALL access for authenticated users" on "public"."projects";
+--
+--

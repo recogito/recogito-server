@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1687874235599" clover="3.2.0">
+  <project timestamp="1687874235599" name="All files">
+    <metrics statements="29" coveredstatements="25" conditionals="52" coveredconditionals="40" methods="6" coveredmethods="6" elements="87" coveredelements="71" complexity="0" loc="29" ncloc="29" packages="1" files="1" classes="1"/>
+    <file name="utility.ts" path="/Users/lorinjameson/Work/recogito-bonn/jest/src/utility.ts">
+      <metrics statements="29" coveredstatements="25" conditionals="52" coveredconditionals="40" methods="6" coveredmethods="6"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="5" count="65" type="stmt"/>
+      <line num="8" count="1" type="stmt"/>
+      <line num="10" count="10" type="stmt"/>
+      <line num="12" count="10" type="stmt"/>
+      <line num="17" count="10" type="cond" truecount="6" falsecount="1"/>
+      <line num="18" count="10" type="cond" truecount="3" falsecount="1"/>
+      <line num="21" count="0" type="stmt"/>
+      <line num="24" count="1" type="stmt"/>
+      <line num="26" count="18" type="stmt"/>
+      <line num="28" count="18" type="stmt"/>
+      <line num="33" count="18" type="cond" truecount="6" falsecount="1"/>
+      <line num="34" count="18" type="cond" truecount="3" falsecount="1"/>
+      <line num="37" count="0" type="stmt"/>
+      <line num="40" count="1" type="stmt"/>
+      <line num="42" count="30" type="stmt"/>
+      <line num="44" count="30" type="stmt"/>
+      <line num="49" count="30" type="cond" truecount="6" falsecount="1"/>
+      <line num="50" count="30" type="cond" truecount="3" falsecount="1"/>
+      <line num="53" count="0" type="stmt"/>
+      <line num="56" count="1" type="stmt"/>
+      <line num="58" count="7" type="stmt"/>
+      <line num="60" count="7" type="stmt"/>
+      <line num="65" count="7" type="cond" truecount="6" falsecount="1"/>
+      <line num="66" count="7" type="cond" truecount="3" falsecount="1"/>
+      <line num="69" count="0" type="stmt"/>
+      <line num="72" count="1" type="stmt"/>
+      <line num="73" count="6" type="stmt"/>
+    </file>
+  </project>
+</coverage>

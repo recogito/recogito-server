@@ -22,10 +22,10 @@ jobs:
       - run: supabase db start
       - run: supabase db lint
       - name: Install modules
-        working-directory: ./jest
+        working-directory: jest
         run: yarn
       - name: Run tests 
-        working-directory: ./jest
+        working-directory: jest
         run: yarn test-silent
 
       - name: Verify generated types are checked in
