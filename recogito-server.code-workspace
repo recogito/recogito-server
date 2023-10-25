@@ -11,6 +11,7 @@
   ],
   "settings": {
     "files.exclude": {
+      "node_modules": true,
       "supabase/functions/": true
     }
   }
