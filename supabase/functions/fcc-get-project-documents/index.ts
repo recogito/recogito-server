@@ -6,6 +6,8 @@ import { serve } from 'server';
 import { createClient } from 'supabase';
 
 serve(async (req) => {
+  const { project_id } = await req.json();
+
   const supabase = createClient(
     Deno.env.get('FCC_API_URL'),
     Deno.env.get('FCC_SERVICE_KEY'),
@@ -18,7 +20,10 @@ serve(async (req) => {
     }
   );
 
-  const projectsResp = await supabase.from('projects').select();
+  const projectsResp = await supabase
+    .from('tei_documents')
+    .select('id, xml_id, name')
+    .eq('project_id', project_id);
 
   return new Response(JSON.stringify(projectsResp.data), {
     headers: { 'Content-Type': 'application/json' },
