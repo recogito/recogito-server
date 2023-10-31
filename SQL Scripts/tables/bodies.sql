@@ -3,6 +3,8 @@ CREATE TYPE body_types AS ENUM ('TextualBody');
 
 CREATE TYPE body_formats AS ENUM ('TextPlain', 'TextHtml');
 
+CREATE TYPE render_type_types AS ENUM ('text', 'lexical');
+
 CREATE TABLE bodies
 (
     id            uuid                          NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -18,7 +20,8 @@ CREATE TABLE bodies
     format        body_formats,
     purpose       varchar,
     value         text,
-    layer_id      uuid REFERENCES public.layers NOT NULL
+    layer_id      uuid REFERENCES public.layers NOT NULL,
+    render_type   render_type_types NOT NULL
 );
 
 -- Changes 4/12/23 --
@@ -44,3 +47,7 @@ ALTER TABLE public.bodies
 -- Changes 7/26/23 --
 ALTER TABLE public.bodies
     ADD COLUMN is_archived bool DEFAULT FALSE;
+
+-- Changes 10/26/23 --
+ALTER TABLE public.bodies
+    ADD COLUMN render_type DEFAULT 'text';
