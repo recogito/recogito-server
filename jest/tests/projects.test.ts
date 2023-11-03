@@ -1076,7 +1076,7 @@ test('Professors can add user to groups that belong to their project', async () 
     const result = await addUserToProjectGroup(
       supabase,
       TEST_PROJECT_ID,
-      'Project Users',
+      'Project Students',
       'student@example.com'
     );
 
@@ -1191,7 +1191,7 @@ test('Professors cannot also add tutor to the Project Students group', async () 
     const result = await addUserToProjectGroup(
       supabase,
       TEST_PROJECT_ID,
-      'Project Users',
+      'Project Students',
       'tutor@example.com'
     );
 
@@ -1332,7 +1332,7 @@ test('Professors can add user to layer groups that belong to their layer', async
     const result = await addUserToLayerGroup(
       supabase,
       TEST_LAYER_ID,
-      'Layer Users',
+      'Layer Student',
       'student@example.com'
     );
 
@@ -2042,7 +2042,7 @@ test('Professors can invite stidents to their project', async () => {
 
     if (groups && groups.data) {
       const projectStudentsGroup = groups.data.find(
-        (g: any) => (g.name = 'Project Users')
+        (g: any) => (g.name = 'Project Students')
       );
 
       if (projectStudentsGroup) {
