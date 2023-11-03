@@ -3,7 +3,7 @@ CREATE TYPE body_types AS ENUM ('TextualBody');
 
 CREATE TYPE body_formats AS ENUM ('TextPlain', 'TextHtml');
 
-CREATE TYPE render_type_types AS ENUM ('text', 'lexical');
+CREATE TYPE render_type_types AS ENUM ('text', 'quill');
 
 CREATE TABLE bodies
 (
@@ -51,3 +51,9 @@ ALTER TABLE public.bodies
 -- Changes 10/26/23 --
 ALTER TABLE public.bodies
     ADD COLUMN render_type DEFAULT 'text';
+
+-- Changes 11/3/23 --
+ALTER TABLE public.bodies DROP COLUMN render_type;
+DROP TYPE render_type_types;
+CREATE TYPE render_type_types AS ENUM ('text', 'quill');
+ALTER TABLE public.bodies ADD COLUMN render_type render_type_types NOT NULL DEFAULT 'text';
