@@ -292,7 +292,7 @@ const main = async (options) => {
 
   // Make sure we have a DEFAULT_CONTEXT tag_definition
   const tagCreateResp = await supabase.from('tag_definitions').upsert({
-    id: 'bb2d0a6e-3f43-4e82-819d-ca78c7172981',
+    id: process.env.DEFAULT_CONTEXT_ID,
     name: 'DEFAULT_CONTEXT',
     target_type: 'context',
     scope: 'system',
