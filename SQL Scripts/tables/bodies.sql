@@ -1,7 +1,7 @@
 -- bodies table --
 CREATE TYPE body_types AS ENUM ('TextualBody');
 
-CREATE TYPE body_formats AS ENUM ('TextPlain', 'TextHtml');
+CREATE TYPE body_formats AS ENUM ('TextPlain', 'TextHtml', 'Quill');
 
 CREATE TABLE bodies
 (
@@ -44,3 +44,6 @@ ALTER TABLE public.bodies
 -- Changes 7/26/23 --
 ALTER TABLE public.bodies
     ADD COLUMN is_archived bool DEFAULT FALSE;
+
+-- Changes 11/10/23 ---
+ALTER TYPE body_formats ADD VALUE 'Quill';
