@@ -34,6 +34,11 @@ const TEST_TUTOR_TARGET_ID = '625fb5b4-7144-4c54-9eda-547d2235a733';
 const TEST_TUTOR_BODY_ID = '8b678638-cd09-448b-9e28-140dc3217c37';
 const TEST_INVITE_ID = 'ed273412-82ad-4715-ba6e-6eba2cdfc994';
 const TEST_TUTOR_DOCUMENT_ID = '9401ef28-aea9-4310-9137-99038148de77';
+const TEST_PROJECT_TAG_DEFINITION_ID = 'c830fba8-54d3-4d2c-aa86-6f41d2789587';
+const TEST_ORGANIZATION_TAG_DEFINITION_ID =
+  '64eccea3-6185-4247-acb0-47a707b8a4fb';
+const NO_STUDENT_PROJECT_TAG_DEFINITION =
+  'f8781bb0-f551-468b-bc37-ecaf3db258af';
 
 type TargetSelectorType = 'Fragment' | 'SvgSelector';
 
@@ -784,6 +789,85 @@ async function createInvite(
   return false;
 }
 
+async function createProjectTagDefinition(
+  supabase: SupabaseClient,
+  id: string,
+  projectId: string,
+  targetType: string,
+  name: string
+) {
+  const result = await supabase
+    .from('tag_definitions')
+    .insert({
+      id: id,
+      scope: 'project',
+      scope_id: projectId,
+      target_type: targetType,
+      name: name,
+    })
+    .select();
+
+  if (!result.error) {
+    if (result.data.length > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function insertProjectTag(
+  supabase: SupabaseClient,
+  tag_id: string,
+  projectId: string,
+  targetType: string,
+  name: string
+) {
+  const result = await supabase
+    .from('tag_definitions')
+    .insert({
+      tag_definition_id: tag_id,
+      scope: 'project',
+      scope_id: projectId,
+      target_type: targetType,
+      name: name,
+    })
+    .select();
+
+  if (!result.error) {
+    if (result.data.length > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function createOrganizationTagDefinition(
+  supabase: SupabaseClient,
+  id: string,
+  targetType: string,
+  name: string
+) {
+  const result = await supabase
+    .from('tag_definitions')
+    .insert({
+      id: id,
+      scope: 'organization',
+      target_type: targetType,
+      name: name,
+    })
+    .select();
+
+  if (!result.error) {
+    if (result.data.length > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 async function processInvite(
   supabase: SupabaseClient,
   inviteId: string,
@@ -1246,6 +1330,41 @@ test('Professors cannot delete layers', async () => {
   }
 });
 
+test('Professors can create tag definitions on Projects', async () => {
+  const supabase = await loginAsProfessor();
+
+  if (supabase) {
+    const result = await createProjectTagDefinition(
+      supabase,
+      TEST_PROJECT_TAG_DEFINITION_ID,
+      TEST_PROJECT_ID,
+      'project',
+      'context'
+    );
+
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors cannot create Organization tag definitions', async () => {
+  const supabase = await loginAsProfessor();
+
+  if (supabase) {
+    const result = await createOrganizationTagDefinition(
+      supabase,
+      NO_STUDENT_PROJECT_TAG_DEFINITION,
+      'project',
+      'Not valid tag'
+    );
+
+    expect(result).toBe(false);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
 test('Tutors can update projects', async () => {
   const supabase = await loginAsTutor();
 
@@ -1539,6 +1658,41 @@ test('Students can create private annotations on layers that they have membershi
     );
 
     expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Students cannot create Organization tag definitions', async () => {
+  const supabase = await loginAsStudent();
+
+  if (supabase) {
+    const result = await createOrganizationTagDefinition(
+      supabase,
+      NO_STUDENT_PROJECT_TAG_DEFINITION,
+      'project',
+      'Not valid tag'
+    );
+
+    expect(result).toBe(false);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Students cannot create Project tag definitions', async () => {
+  const supabase = await loginAsStudent();
+
+  if (supabase) {
+    const result = await createProjectTagDefinition(
+      supabase,
+      NO_STUDENT_PROJECT_TAG_DEFINITION,
+      TEST_PROJECT_ID,
+      'layer',
+      'Not valid tag'
+    );
+
+    expect(result).toBe(false);
   } else {
     expect(supabase).not.toBe(null);
   }
