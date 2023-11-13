@@ -127,6 +127,10 @@ const main = async (options) => {
       email_confirm: true,
     });
 
+    if(createAdminUserResponse.error) {
+      console.log('Error creating org admin: ', createAdminUserResponse.error)
+    }
+
     supabase = createClient(
       process.env.SUPABASE_HOST,
       process.env.SUPABASE_SERVICE_KEY,
