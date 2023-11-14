@@ -5,8 +5,10 @@ SELECT
     TO authenticated USING (
         is_archived IS FALSE
         AND (
-            SCOPE = 'organization'
-            AND public.check_action_policy_organization (auth.uid (), 'tag_definitions', 'SELECT')
+            (
+                SCOPE = 'organization'
+                AND public.check_action_policy_organization (auth.uid (), 'tag_definitions', 'SELECT')
+            )
             OR (
                 SCOPE = 'project'
                 AND (
@@ -18,6 +20,10 @@ SELECT
                         scope_id
                     )
                 )
+            )
+            OR (
+                SCOPE = 'system'
+                AND public.check_action_policy_organization (auth.uid (), 'tag_definitions', 'SELECT')
             )
         )
     );
