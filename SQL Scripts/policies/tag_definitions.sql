@@ -3,8 +3,7 @@ DROP POLICY IF EXISTS "Users with correct policies can SELECT on tag_definitions
 CREATE POLICY "Users with correct policies can SELECT on tag_definitions" ON public.tag_definitions FOR
 SELECT
     TO authenticated USING (
-        SCOPE != 'system'
-        AND is_archived IS FALSE
+        is_archived IS FALSE
         AND (
             SCOPE = 'organization'
             AND public.check_action_policy_organization (auth.uid (), 'tag_definitions', 'SELECT')
