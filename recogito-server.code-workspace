@@ -12,6 +12,18 @@
   "settings": {
     "files.exclude": {
       "supabase/functions/": true
-    }
+    },
+    "sqltools.connections": [
+      {
+        "previewLimit": 50,
+        "server": "localhost",
+        "port": 54322,
+        "askForPassword": true,
+        "driver": "PostgreSQL",
+        "name": "Supabase Recogito Local",
+        "database": "postgres",
+        "username": "postgres"
+      }
+    ]
   }
 }

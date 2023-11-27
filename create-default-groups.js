@@ -90,6 +90,7 @@ const main = async (options) => {
       name: orgGroup.name,
       description: orgGroup.description,
       is_admin: orgGroup.is_admin,
+      is_default: orgGroup.is_default,
     });
   });
 
@@ -120,15 +121,25 @@ const main = async (options) => {
 
   // if no Admin found, create one
   if (orgAdminProfile.data.length === 0) {
+    supabase = createClient(
+      process.env.SUPABASE_HOST,
+      process.env.SUPABASE_SERVICE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false,
+        },
+      }
+    );
     // Create the Admin user
-    const createAdminUserResponse = await supabase.auth.admin.createUser({
+    const createAdminUserResponse = await supabase.auth.signUp({
       email: config.admin.admin_email,
       password: process.env.ORG_ADMIN_PW,
-      email_confirm: true,
     });
 
-    if(createAdminUserResponse.error) {
-      console.log('Error creating org admin: ', createAdminUserResponse.error)
+    if (createAdminUserResponse.error) {
+      console.log('Error creating org admin: ', createAdminUserResponse.error);
     }
 
     supabase = createClient(
@@ -159,14 +170,11 @@ const main = async (options) => {
   for (let i = 0; i < config.admin.admin_groups.length; i++) {
     const groupAddResponse = await supabase
       .from('group_users')
-      .upsert(
-        {
-          group_type: 'organization',
-          type_id: adminGroupId,
-          user_id: adminId,
-        },
-        { onConflict: 'type_id, user_id, group_type', ignoreDuplicates: true }
-      )
+      .update({
+        group_type: 'organization',
+        type_id: adminGroupId,
+      })
+      .eq('user_id', adminId)
       .select();
 
     if (groupAddResponse.error) {

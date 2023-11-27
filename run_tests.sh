@@ -6,7 +6,7 @@ set +o allexport
 
 supabase db reset
 
-sleep 2
+sleep 5
 
 node ./create-default-groups.js -f ./config.json
 
