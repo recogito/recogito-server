@@ -98,7 +98,6 @@ const main = async (options) => {
     .from('organization_groups')
     .upsert(organizationGroupInserts, {
       onConflict: 'role_id',
-      ignoreDuplicates: true,
     });
 
   const orgAdminGroup = organizationGroupInserts.find(
