@@ -51,11 +51,12 @@ const main = async (options) => {
     .select()
     .eq('id', process.env.PROFESSOR_GROUP_ID);
 
-  const groupUserResp = await supabase.from('group_users').insert({
-    type_id: orgProfessorGroupResp.data[0].id,
-    user_id: professorProfile.data[0].id,
-    group_type: 'organization',
-  });
+  const groupUserResp = await supabase
+    .from('group_users')
+    .update({
+      type_id: orgProfessorGroupResp.data[0].id,
+    })
+    .eq('user_id', professorProfile.data[0].id);
 
   assert(groupUserResp.error === null);
 
@@ -78,18 +79,6 @@ const main = async (options) => {
     .eq('email', 'student@example.com');
   console.table(studentProfile.data[0]);
 
-  // Add him to the Org Readers group
-  const orgReadersGroupResp = await supabase
-    .from('organization_groups')
-    .select()
-    .eq('id', process.env.STUDENT_GROUP_ID);
-
-  const groupReaderResp = await supabase.from('group_users').insert({
-    type_id: orgReadersGroupResp.data[0].id,
-    user_id: studentProfile.data[0].id,
-    group_type: 'organization',
-  });
-
   await supabase.auth.signUp({
     email: 'tutor@example.com',
     password: process.env.TUTOR_PW,
@@ -100,21 +89,6 @@ const main = async (options) => {
     .select()
     .eq('email', 'tutor@example.com');
   console.table(tutorProfile.data[0]);
-
-  // Add him to the Org Readers group
-  supabase = Supa.createClient(
-    process.env.SUPABASE_HOST,
-    process.env.SUPABASE_SERVICE_KEY,
-    {
-      auth: { persistSession: false },
-    }
-  );
-
-  const groupTutorResp = await supabase.from('group_users').insert({
-    type_id: orgReadersGroupResp.data[0].id,
-    user_id: tutorProfile.data[0].id,
-    group_type: 'organization',
-  });
 
   await supabase.auth.signUp({
     email: 'reader@example.com',
@@ -135,13 +109,6 @@ const main = async (options) => {
     .eq('email', 'reader@example.com');
   console.table(readerProfile.data[0]);
 
-  // Add him to the Org Readers group
-  const groupDefaultResp = await supabase.from('group_users').insert({
-    type_id: orgReadersGroupResp.data[0].id,
-    user_id: readerProfile.data[0].id,
-    group_type: 'organization',
-  });
-
   await supabase.auth.signUp({
     email: 'invited@example.com',
     password: process.env.INVITE_PW,
@@ -160,13 +127,6 @@ const main = async (options) => {
     .select()
     .eq('email', 'invited@example.com');
   console.table(inviteProfile.data[0]);
-
-  // Add him to the Org Readers group
-  const inviteDefaultResp = await supabase.from('group_users').insert({
-    type_id: orgReadersGroupResp.data[0].id,
-    user_id: inviteProfile.data[0].id,
-    group_type: 'organization',
-  });
 };
 
 const optionDefinitions = [

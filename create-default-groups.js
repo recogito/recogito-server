@@ -90,6 +90,7 @@ const main = async (options) => {
       name: orgGroup.name,
       description: orgGroup.description,
       is_admin: orgGroup.is_admin,
+      is_default: orgGroup.is_default,
     });
   });
 
@@ -97,7 +98,7 @@ const main = async (options) => {
     .from('organization_groups')
     .upsert(organizationGroupInserts, {
       onConflict: 'role_id',
-      ignoreDuplicates: true,
+      ignoreDuplicates: false,
     });
 
   const orgAdminGroup = organizationGroupInserts.find(
@@ -120,12 +121,26 @@ const main = async (options) => {
 
   // if no Admin found, create one
   if (orgAdminProfile.data.length === 0) {
+    supabase = createClient(
+      process.env.SUPABASE_HOST,
+      process.env.SUPABASE_SERVICE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false,
+        },
+      }
+    );
     // Create the Admin user
-    const createAdminUserResponse = await supabase.auth.admin.createUser({
+    const createAdminUserResponse = await supabase.auth.signUp({
       email: config.admin.admin_email,
       password: process.env.ORG_ADMIN_PW,
-      email_confirm: true,
     });
+
+    if (createAdminUserResponse.error) {
+      console.log('Error creating org admin: ', createAdminUserResponse.error);
+    }
 
     supabase = createClient(
       process.env.SUPABASE_HOST,
@@ -155,14 +170,11 @@ const main = async (options) => {
   for (let i = 0; i < config.admin.admin_groups.length; i++) {
     const groupAddResponse = await supabase
       .from('group_users')
-      .upsert(
-        {
-          group_type: 'organization',
-          type_id: adminGroupId,
-          user_id: adminId,
-        },
-        { onConflict: 'type_id, user_id, group_type', ignoreDuplicates: true }
-      )
+      .update({
+        group_type: 'organization',
+        type_id: adminGroupId,
+      })
+      .eq('user_id', adminId)
       .select();
 
     if (groupAddResponse.error) {
@@ -198,7 +210,7 @@ const main = async (options) => {
 
   const defaultGroupsResponse = await supabase
     .from('default_groups')
-    .upsert(defaultGroups)
+    .upsert(defaultGroups, { ignoreDuplicates: false })
     .select();
   if (defaultGroupsResponse.error) {
     console.error('Failed to create default_groups');
@@ -292,6 +304,7 @@ const main = async (options) => {
 
   // Make sure we have a DEFAULT_CONTEXT tag_definition
   const tagCreateResp = await supabase.from('tag_definitions').upsert({
+    id: process.env.DEFAULT_CONTEXT_ID,
     name: 'DEFAULT_CONTEXT',
     target_type: 'context',
     scope: 'system',
