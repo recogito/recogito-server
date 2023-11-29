@@ -98,6 +98,7 @@ const main = async (options) => {
     .from('organization_groups')
     .upsert(organizationGroupInserts, {
       onConflict: 'role_id',
+      ignoreDuplicates: false,
     });
 
   const orgAdminGroup = organizationGroupInserts.find(
@@ -209,7 +210,7 @@ const main = async (options) => {
 
   const defaultGroupsResponse = await supabase
     .from('default_groups')
-    .upsert(defaultGroups)
+    .upsert(defaultGroups, { ignoreDuplicates: false })
     .select();
   if (defaultGroupsResponse.error) {
     console.error('Failed to create default_groups');

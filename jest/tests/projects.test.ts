@@ -35,6 +35,7 @@ const TEST_TUTOR_BODY_ID = '8b678638-cd09-448b-9e28-140dc3217c37';
 const TEST_INVITE_ID = 'ed273412-82ad-4715-ba6e-6eba2cdfc994';
 const TEST_TUTOR_DOCUMENT_ID = '9401ef28-aea9-4310-9137-99038148de77';
 const TEST_PROJECT_TAG_DEFINITION_ID = 'c830fba8-54d3-4d2c-aa86-6f41d2789587';
+const TEST_CONTEXT_TAG_DEFINITION_ID = '98428668-bf18-4d81-8e28-d67060df573a';
 const TEST_ORGANIZATION_TAG_DEFINITION_ID =
   '64eccea3-6185-4247-acb0-47a707b8a4fb';
 const NO_STUDENT_PROJECT_TAG_DEFINITION =
@@ -818,19 +819,14 @@ async function createProjectTagDefinition(
 
 async function insertProjectTag(
   supabase: SupabaseClient,
-  tag_id: string,
-  projectId: string,
-  targetType: string,
-  name: string
+  tag_definition_id: string,
+  target_id: string
 ) {
   const result = await supabase
-    .from('tag_definitions')
+    .from('tags')
     .insert({
-      tag_definition_id: tag_id,
-      scope: 'project',
-      scope_id: projectId,
-      target_type: targetType,
-      name: name,
+      tag_definition_id: tag_definition_id,
+      target_id: target_id,
     })
     .select();
 
@@ -1340,6 +1336,22 @@ test('Professors can create tag definitions on Projects', async () => {
       TEST_PROJECT_ID,
       'project',
       'context'
+    );
+
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can create tags on Projects they admin', async () => {
+  const supabase = await loginAsProfessor();
+
+  if (supabase) {
+    const result = await insertProjectTag(
+      supabase,
+      TEST_PROJECT_TAG_DEFINITION_ID,
+      TEST_PROJECT_ID
     );
 
     expect(result).toBe(true);
