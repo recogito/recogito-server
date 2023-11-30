@@ -13,7 +13,7 @@ BEGIN
   END LOOP;
   FOR t_row_layer IN SELECT * FROM public.LAYER_GROUPS LOOP
     IF t_row_layer.name = 'Layer Admin' THEN
-      UPDATE public.LAYER_GROUPS SET is_admin = TRUE WHERE id = t_row+LABEL.id;
+      UPDATE public.LAYER_GROUPS SET is_admin = TRUE WHERE id = t_row_layer.id;
     ELSIF t_row_layer.name = 'Layer Student' THEN
       UPDATE public.LAYER_GROUPS SET is_default = TRUE WHERE id = t_row_layer.id;
     END IF;
