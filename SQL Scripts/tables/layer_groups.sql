@@ -1,66 +1,69 @@
-CREATE TABLE public.layer_groups
-(
-    id          uuid                         NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
-    created_at  timestamp WITH TIME ZONE              DEFAULT NOW(),
-    created_by  uuid REFERENCES public.profiles,
-    updated_at  timestamptz,
-    updated_by  uuid REFERENCES public.profiles,
-    is_archived bool                                  DEFAULT FALSE,
-    layer_id    uuid REFERENCES public.layers ON DELETE CASCADE,
-    name        varchar                      NOT NULL,
-    description varchar,
-    role_id     uuid REFERENCES public.roles NOT NULL,
-    is_admin    bool                                  DEFAULT FALSE
-);
+CREATE    TABLE PUBLIC.LAYER_GROUPS (
+          ID UUID NOT NULL DEFAULT UUID_GENERATE_V4 () PRIMARY KEY,
+          CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          CREATED_BY UUID REFERENCES PUBLIC.PROFILES,
+          UPDATED_AT TIMESTAMPTZ,
+          UPDATED_BY UUID REFERENCES PUBLIC.PROFILES,
+          IS_ARCHIVED BOOL DEFAULT FALSE,
+          LAYER_ID UUID REFERENCES PUBLIC.LAYERS ON DELETE CASCADE,
+          NAME VARCHAR NOT NULL,
+          DESCRIPTION VARCHAR,
+          ROLE_ID UUID REFERENCES PUBLIC.ROLES NOT NULL,
+          IS_ADMIN BOOL DEFAULT FALSE,
+          IS_DEFAULT BOOLEAN DEFAULT FALSE
+          );
 
 -- Changes 05/01/23 ---
-ALTER TABLE public.assignment_groups
-    RENAME TO layer_groups;
+ALTER     TABLE PUBLIC.ASSIGNMENT_GROUPS
+RENAME TO LAYER_GROUPS;
 
-ALTER TABLE public.layer_groups
-    DROP CONSTRAINT assignment_groups_assignment_id_fkey;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+DROP      CONSTRAINT ASSIGNMENT_GROUPS_ASSIGNMENT_ID_FKEY;
 
-ALTER TABLE public.layer_groups
-    DROP COLUMN assignment_id;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+DROP      COLUMN ASSIGNMENT_ID;
 
-ALTER TABLE public.layer_groups
-    ADD COLUMN layer_id uuid REFERENCES public.layers;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       COLUMN LAYER_ID UUID REFERENCES PUBLIC.LAYERS;
 
 -- Changes 05/08/23
-ALTER TABLE public.layer_groups
-    ADD COLUMN name varchar NOT NULL;
-ALTER TABLE public.layer_groups
-    ADD COLUMN description varchar;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       COLUMN NAME VARCHAR NOT NULL;
+
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       COLUMN DESCRIPTION VARCHAR;
 
 -- Changes 5/24/23 --
-ALTER TABLE public.layer_groups
-    ADD CONSTRAINT layer_groups_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles (id);
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       CONSTRAINT LAYER_GROUPS_CREATED_BY_FKEY FOREIGN KEY (CREATED_BY) REFERENCES PUBLIC.PROFILES (ID);
 
 -- Changes 6/9/23 --
-ALTER TABLE public.layer_groups
-    DROP CONSTRAINT layer_groups_group_id_fkey,
-    ADD CONSTRAINT layer_groups_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups
-        ON DELETE CASCADE;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+DROP      CONSTRAINT LAYER_GROUPS_GROUP_ID_FKEY,
+ADD       CONSTRAINT LAYER_GROUPS_GROUP_ID_FKEY FOREIGN KEY (GROUP_ID) REFERENCES PUBLIC.GROUPS ON DELETE CASCADE;
 
-ALTER TABLE public.layer_groups
-    DROP CONSTRAINT layer_groups_layer_id_fkey,
-    ADD CONSTRAINT layer_groups_layer_id_fkey FOREIGN KEY (layer_id) REFERENCES public.layers
-        ON DELETE CASCADE;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+DROP      CONSTRAINT LAYER_GROUPS_LAYER_ID_FKEY,
+ADD       CONSTRAINT LAYER_GROUPS_LAYER_ID_FKEY FOREIGN KEY (LAYER_ID) REFERENCES PUBLIC.LAYERS ON DELETE CASCADE;
 
 -- Changes 6/13/23 --
-ALTER TABLE public.layer_groups
-    ADD COLUMN role_id uuid REFERENCES public.roles NOT NULL;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       COLUMN ROLE_ID UUID REFERENCES PUBLIC.ROLES NOT NULL;
 
-ALTER TABLE public.layer_groups
-    DROP CONSTRAINT layer_groups_group_id_fkey;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+DROP      CONSTRAINT LAYER_GROUPS_GROUP_ID_FKEY;
 
-ALTER TABLE public.layer_groups
-    DROP COLUMN group_id;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+DROP      COLUMN GROUP_ID;
 
 -- Changes 7/26/23 --
-ALTER TABLE public.layer_groups
-    ADD COLUMN is_archived bool DEFAULT FALSE;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       COLUMN IS_ARCHIVED BOOL DEFAULT FALSE;
 
 -- Changes 10/2/23 --
-ALTER TABLE public.layer_groups
-    ADD COLUMN is_admin bool DEFAULT FALSE;
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       COLUMN IS_ADMIN BOOL DEFAULT FALSE;
+
+-- Changes 11/30/23 --
+ALTER     TABLE PUBLIC.LAYER_GROUPS
+ADD       COLUMN IS_DEFAULT BOOLEAN DEFAULT FALSE;
