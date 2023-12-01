@@ -1,0 +1,100 @@
+-- -- create policy "Users with correct policies can DELETE on organization_groups"
+-- -- on "public"."organization_groups"
+-- -- as permissive
+-- -- for delete
+-- -- to authenticated
+-- -- using (check_action_policy_organization(auth.uid(), 'organization_groups'::character varying, 'DELETE'::operation_types));
+--
+--
+-- create policy "Users with correct policies can INSERT on organization_groups"
+-- on "public"."organization_groups"
+-- as permissive
+-- for insert
+-- to authenticated
+-- with check (check_action_policy_organization(auth.uid(), 'organization_groups'::character varying, 'INSERT'::operation_types));
+--
+--
+-- create policy "Users with correct policies can SELECT on organization_groups"
+-- on "public"."organization_groups"
+-- as permissive
+-- for select
+-- to authenticated
+-- using (check_action_policy_organization(auth.uid(), 'organization_groups'::character varying, 'SELECT'::operation_types));
+--
+--
+-- create policy "Users with correct policies can UPDATE on organization_groups"
+-- on "public"."organization_groups"
+-- as permissive
+-- for update
+-- to authenticated
+-- using (check_action_policy_organization(auth.uid(), 'organization_groups'::character varying, 'UPDATE'::operation_types))
+-- with check (check_action_policy_organization(auth.uid(), 'organization_groups'::character varying, 'UPDATE'::operation_types));
+--
+--
+-- -- create policy "Users with correct policies can DELETE on projects"
+-- -- on "public"."project_groups"
+-- -- as permissive
+-- -- for delete
+-- -- to authenticated
+-- -- using ((check_action_policy_organization(auth.uid(), 'project_groups'::character varying, 'DELETE'::operation_types) OR check_action_policy_project(auth.uid(), 'project_groups'::character varying, 'DELETE'::operation_types, id)));
+-- --
+-- --
+-- -- create policy "Users with correct policies can INSERT on project_groups"
+-- -- on "public"."project_groups"
+-- -- as permissive
+-- -- for insert
+-- -- to authenticated
+-- -- with check ((check_action_policy_organization(auth.uid(), 'project_groups'::character varying, 'INSERT'::operation_types) OR check_action_policy_project(auth.uid(), 'project_groups'::character varying, 'INSERT'::operation_types, id)));
+-- --
+-- --
+-- -- create policy "Users with correct policies can SELECT on project_groups"
+-- -- on "public"."project_groups"
+-- -- as permissive
+-- -- for select
+-- -- to authenticated
+-- -- using ((check_action_policy_organization(auth.uid(), 'project_groups'::character varying, 'SELECT'::operation_types) OR check_action_policy_project(auth.uid(), 'project_groups'::character varying, 'SELECT'::operation_types, id)));
+-- --
+-- --
+-- -- create policy "Users with correct policies can UPDATE on project_groups"
+-- -- on "public"."project_groups"
+-- -- as permissive
+-- -- for update
+-- -- to authenticated
+-- -- using ((check_action_policy_organization(auth.uid(), 'project_groups'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project(auth.uid(), 'project_groups'::character varying, 'UPDATE'::operation_types, id)))
+-- -- with check ((check_action_policy_organization(auth.uid(), 'project_groups'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project(auth.uid(), 'project_groups'::character varying, 'UPDATE'::operation_types, id)));
+-- --
+--
+-- create policy "Users with correct policies can DELETE on projects"
+-- on "public"."projects"
+-- as permissive
+-- for delete
+-- to authenticated
+-- using (check_action_policy_organization(auth.uid(), 'projects'::character varying, 'DELETE'::operation_types));
+--
+--
+-- create policy "Users with correct policies can INSERT on projects"
+-- on "public"."projects"
+-- as permissive
+-- for insert
+-- to authenticated
+-- with check (check_action_policy_organization(auth.uid(), 'projects'::character varying, 'INSERT'::operation_types));
+--
+--
+-- create policy "Users with correct policies can SELECT on projects"
+-- on "public"."projects"
+-- as permissive
+-- for select
+-- to authenticated
+-- using ((check_action_policy_organization(auth.uid(), 'projects'::character varying, 'SELECT'::operation_types) OR check_action_policy_project(auth.uid(), 'projects'::character varying, 'SELECT'::operation_types, id)));
+--
+--
+-- create policy "Users with correct policies can UPDATE on projects"
+-- on "public"."projects"
+-- as permissive
+-- for update
+-- to authenticated
+-- using ((check_action_policy_organization(auth.uid(), 'projects'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project(auth.uid(), 'projects'::character varying, 'UPDATE'::operation_types, id)))
+-- with check ((check_action_policy_organization(auth.uid(), 'projects'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project(auth.uid(), 'projects'::character varying, 'UPDATE'::operation_types, id)));
+--
+--
+--
