@@ -21,8 +21,8 @@ serve(async (req) => {
   );
 
   const supabaseREC = createClient(
-    Deno.env.get('RECOGITO_API_URL'),
-    Deno.env.get('RECOGITO_SERVICE_KEY'),
+    Deno.env.get('SUPABASE_URL'),
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
     {
       auth: {
         persistSession: true,
