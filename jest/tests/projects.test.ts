@@ -568,6 +568,44 @@ async function insertDocument(
   return !!(resultSelect.data && resultSelect.data.length > 0);
 }
 
+async function makeDocumentPublic(
+  supabase: SupabaseClient,
+  documentId: string
+) {
+  const result = await supabase
+    .from('documents')
+    .update({
+      is_private: false,
+    })
+    .eq('id', documentId);
+
+  const resultSelect = await supabase
+    .from('documents')
+    .select()
+    .eq('id', documentId);
+
+  return !!(resultSelect.data && resultSelect.data[0].is_private === false);
+}
+
+async function addDocumentToProject(
+  supabase: SupabaseClient,
+  documentId: string,
+  projectId: string
+) {
+  const result = await supabase.from('project_documents').insert({
+    document_id: documentId,
+    project_id: projectId,
+  });
+
+  const resultSelect = await supabase
+    .from('project_documents')
+    .select()
+    .eq('document_id', documentId)
+    .eq('project_id', projectId);
+
+  return !!(resultSelect.data && resultSelect.data.length > 0);
+}
+
 async function selectDocument(supabase: SupabaseClient, documentId: string) {
   const result = await supabase.from('documents').select().eq('id', documentId);
 
@@ -1221,6 +1259,21 @@ test('Professors can add documents', async () => {
   }
 });
 
+test('Professors can add documents to projects they own', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await addDocumentToProject(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_PROJECT_ID
+    );
+
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
 test('Professors can select documents for layers they see', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
@@ -1486,6 +1539,39 @@ test('Students cannot create projects', async () => {
       );
 
     expect(error).not.toBe(null);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Students cannot select private documents from projects they are not part of', async () => {
+  const supabase = await loginAsStudent();
+
+  if (supabase) {
+    const result = await selectDocument(supabase, TEST_DOCUMENT_ID);
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Tutors cannot make their professors private document public', async () => {
+  const supabase = await loginAsTutor();
+
+  if (supabase) {
+    const result = await makeDocumentPublic(supabase, TEST_DOCUMENT_ID);
+    expect(result).toBe(false);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can make their private document public', async () => {
+  const supabase = await loginAsProfessor();
+
+  if (supabase) {
+    const result = await makeDocumentPublic(supabase, TEST_DOCUMENT_ID);
+    expect(result).toBe(true);
   } else {
     expect(supabase).not.toBe(null);
   }
