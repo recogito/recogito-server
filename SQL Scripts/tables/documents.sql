@@ -37,9 +37,10 @@ ALTER TABLE public.documents
 -- Changes 8/21/23 --
 ALTER TABLE public.documents ALTER COLUMN content_type TYPE content_types_type USING content_type::content_types_type;
 
+-- Changes 12/11/23 --
+ALTER TABLE public.documents ADD COLUMN is_private BOOLEAN DEFAULT true;
+
 -- Changes 12/20/23 --
 ALTER TABLE public.documents ADD COLUMN collection_id uuid REFERENCES public.collections;
 
 ALTER TABLE public.documents ADD COLUMN collection_metadata json;
--- Changes 12/11/23 --
-ALTER TABLE public.documents ADD COLUMN is_private BOOLEAN DEFAULT true;

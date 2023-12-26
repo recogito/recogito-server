@@ -43,8 +43,13 @@ FOR UPDATE
             )
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'UPDATE')
         )
-        OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'UPDATE', id)
-        OR public.check_action_policy_layer_from_document (auth.uid (), 'documents', 'UPDATE', id)
+        OR (
+            (
+                is_private = FALSE
+                OR created_by = auth.uid ()
+            )
+            AND public.check_action_policy_project_from_document (auth.uid (), 'documents', 'UPDATE', id)
+        )
     )
 WITH
     CHECK (
@@ -55,8 +60,13 @@ WITH
             )
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'UPDATE')
         )
-        OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'UPDATE', id)
-        OR public.check_action_policy_layer_from_document (auth.uid (), 'documents', 'UPDATE', id)
+        OR (
+            (
+                is_private = FALSE
+                OR created_by = auth.uid ()
+            )
+            AND public.check_action_policy_project_from_document (auth.uid (), 'documents', 'UPDATE', id)
+        )
     );
 
 DROP POLICY IF EXISTS "Users with correct policies can DELETE on documents" ON public.documents;
