@@ -40,6 +40,7 @@ const TEST_ORGANIZATION_TAG_DEFINITION_ID =
   '64eccea3-6185-4247-acb0-47a707b8a4fb';
 const NO_STUDENT_PROJECT_TAG_DEFINITION =
   'f8781bb0-f551-468b-bc37-ecaf3db258af';
+const COLLECTION_DOCUMENT_ID = '95b95540-fe6c-42ef-9aa4-e1728b7b4082';
 
 type TargetSelectorType = 'Fragment' | 'SvgSelector';
 
@@ -551,13 +552,15 @@ async function insertDocument(
   documentId: string,
   name: string,
   bucketId: string,
-  contentType: ContentTypes
+  contentType: ContentTypes,
+  collectionId?: string
 ) {
   const result = await supabase.from('documents').insert({
     id: documentId,
     name: name,
     bucket_id: bucketId,
     content_type: contentType,
+    collectionId: collectionId,
   });
 
   const resultSelect = await supabase
@@ -1254,6 +1257,24 @@ test('Professors can add documents', async () => {
     );
 
     expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors cannot add collection documents', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await insertDocument(
+      supabase,
+      COLLECTION_DOCUMENT_ID,
+      'Bad Collection Document',
+      'documents',
+      'text/plain',
+      '6fa82d44-f665-44a7-a154-5dad64ea43bd'
+    );
+
+    expect(result).toBe(false);
   } else {
     expect(supabase).not.toBe(null);
   }

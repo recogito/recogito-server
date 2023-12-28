@@ -1,7 +1,6 @@
 {
   "imports": {
     "supabase": "https://esm.sh/@supabase/supabase-js@2",
-    "server": "https://deno.land/std@0.177.0/http/server.ts",
-    "uuid": "https://deno.land/std@0.207.0/uuid/mod.ts"
+    "server": "https://deno.land/std@0.177.0/http/server.ts"
   }
 }

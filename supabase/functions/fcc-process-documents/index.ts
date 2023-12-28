@@ -2,9 +2,12 @@
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
 
-import { serve } from 'server';
-import { createClient, SupabaseClient } from 'supabase';
-import { FCC_TEIDocument, REC_Collection } from '../types';
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+import {
+  createClient,
+  SupabaseClient,
+} from 'https://esm.sh/@supabase/supabase-js@2';
+import { FCC_TEIDocument, REC_Document } from '../types.ts';
 
 // This function retrieves the collections from the recogito DB and then queries
 // FairCopyCloud (FCC) for any missing or updated documents
@@ -123,11 +126,11 @@ async function processDocumentList(
     console.info(
       `Processing document ${doc.xml_id}, revison: ${doc.revision_number}`
     );
-    const foundDoc = collectionDocs.find((d: REC_Collection) => {
+    const foundDoc = collectionDocs.find((d: REC_Document) => {
       if (
         d.collection_metadata &&
         d.collection_metadata.guid === doc.resource_guid &&
-        d.collection_metadata.revison === doc.revision_number
+        d.collection_metadata.revision_number === doc.revision_number
       ) {
         return true;
       }
@@ -136,7 +139,7 @@ async function processDocumentList(
     });
 
     if (!foundDoc) {
-      console.info('   Document revission not found!, Adding');
+      console.info('   Document revision not found!, Adding');
       const teiResp = await supabaseFCC
         .from('tei_documents')
         .select('id, project_id, xml, revision_number')
@@ -163,6 +166,7 @@ async function processDocumentList(
               revision_number: teiResp.data[0].revision_number,
               document_id: `${projectId}-${doc.xml_id}`,
               description: 'New draft published',
+              guid: doc.resource_guid,
             },
           },
         ]);
