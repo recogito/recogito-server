@@ -40,6 +40,7 @@ const TEST_ORGANIZATION_TAG_DEFINITION_ID =
   '64eccea3-6185-4247-acb0-47a707b8a4fb';
 const NO_STUDENT_PROJECT_TAG_DEFINITION =
   'f8781bb0-f551-468b-bc37-ecaf3db258af';
+const COLLECTION_DOCUMENT_ID = '95b95540-fe6c-42ef-9aa4-e1728b7b4082';
 
 type TargetSelectorType = 'Fragment' | 'SvgSelector';
 
@@ -551,19 +552,59 @@ async function insertDocument(
   documentId: string,
   name: string,
   bucketId: string,
-  contentType: ContentTypes
+  contentType: ContentTypes,
+  collectionId?: string
 ) {
   const result = await supabase.from('documents').insert({
     id: documentId,
     name: name,
     bucket_id: bucketId,
     content_type: contentType,
+    collectionId: collectionId,
   });
 
   const resultSelect = await supabase
     .from('documents')
     .select()
     .eq('id', documentId);
+
+  return !!(resultSelect.data && resultSelect.data.length > 0);
+}
+
+async function makeDocumentPublic(
+  supabase: SupabaseClient,
+  documentId: string
+) {
+  const result = await supabase
+    .from('documents')
+    .update({
+      is_private: false,
+    })
+    .eq('id', documentId);
+
+  const resultSelect = await supabase
+    .from('documents')
+    .select()
+    .eq('id', documentId);
+
+  return !!(resultSelect.data && resultSelect.data[0].is_private === false);
+}
+
+async function addDocumentToProject(
+  supabase: SupabaseClient,
+  documentId: string,
+  projectId: string
+) {
+  const result = await supabase.from('project_documents').insert({
+    document_id: documentId,
+    project_id: projectId,
+  });
+
+  const resultSelect = await supabase
+    .from('project_documents')
+    .select()
+    .eq('document_id', documentId)
+    .eq('project_id', projectId);
 
   return !!(resultSelect.data && resultSelect.data.length > 0);
 }
@@ -1221,6 +1262,39 @@ test('Professors can add documents', async () => {
   }
 });
 
+test('Professors cannot add collection documents', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await insertDocument(
+      supabase,
+      COLLECTION_DOCUMENT_ID,
+      'Bad Collection Document',
+      'documents',
+      'text/plain',
+      '6fa82d44-f665-44a7-a154-5dad64ea43bd'
+    );
+
+    expect(result).toBe(false);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can add documents to projects they own', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await addDocumentToProject(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_PROJECT_ID
+    );
+
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
 test('Professors can select documents for layers they see', async () => {
   const supabase = await loginAsProfessor();
   if (supabase) {
@@ -1486,6 +1560,39 @@ test('Students cannot create projects', async () => {
       );
 
     expect(error).not.toBe(null);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Students cannot select private documents from projects they are not part of', async () => {
+  const supabase = await loginAsStudent();
+
+  if (supabase) {
+    const result = await selectDocument(supabase, TEST_DOCUMENT_ID);
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Tutors cannot make their professors private document public', async () => {
+  const supabase = await loginAsTutor();
+
+  if (supabase) {
+    const result = await makeDocumentPublic(supabase, TEST_DOCUMENT_ID);
+    expect(result).toBe(false);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can make their private document public', async () => {
+  const supabase = await loginAsProfessor();
+
+  if (supabase) {
+    const result = await makeDocumentPublic(supabase, TEST_DOCUMENT_ID);
+    expect(result).toBe(true);
   } else {
     expect(supabase).not.toBe(null);
   }
