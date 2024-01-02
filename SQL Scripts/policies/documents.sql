@@ -8,6 +8,7 @@ SELECT
             (
                 is_private = FALSE
                 OR created_by = auth.uid ()
+                OR is_admin_organization(auth.uid())
             )
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'SELECT')
             OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'SELECT', id)
@@ -24,7 +25,9 @@ WITH
             (
                 is_private = FALSE
                 OR created_by = auth.uid ()
+                OR is_admin_organization(auth.uid())
             )
+            AND (collection_id ISNULL OR is_admin_organization(auth.uid())) 
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'INSERT')
         )
         OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'INSERT', id)
@@ -40,6 +43,7 @@ FOR UPDATE
             (
                 is_private = FALSE
                 OR created_by = auth.uid ()
+                OR is_admin_organization(auth.uid())
             )
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'UPDATE')
         )
@@ -52,7 +56,9 @@ WITH
             (
                 is_private = FALSE
                 OR created_by = auth.uid ()
+                OR is_admin_organization(auth.uid())
             )
+            AND (collection_id ISNULL OR is_admin_organization(auth.uid()))            
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'UPDATE')
         )
         OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'UPDATE', id)
@@ -66,7 +72,9 @@ CREATE POLICY "Users with correct policies can DELETE on documents" ON public.do
         (
             is_private = FALSE
             OR created_by = auth.uid ()
+            OR is_admin_organization(auth.uid())
         )
+        AND (collection_id ISNULL OR is_admin_organization(auth.uid()))        
         AND public.check_action_policy_organization (auth.uid (), 'documents', 'DELETE')
     )
     OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'DELETE', id)
