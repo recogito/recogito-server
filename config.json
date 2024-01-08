@@ -1,29 +1,9 @@
 {
   "project_name": "Default Config",
   "author": "LWJ",
-  "version": "1.6",
+  "version": "1.7",
   "created_at": "1685115972558",
   "policies": [
-    {
-      "id": "50c00273-d524-4d60-a9af-050d1cff51a3",
-      "table_name": "collections",
-      "operation": "SELECT"
-    },
-    {
-      "id": "2b94630b-b725-4715-ba72-3388d3c63cbd",
-      "table_name": "collections",
-      "operation": "INSERT"
-    },
-    {
-      "id": "0fdb8964-87a1-457b-bbcc-b6f05e44c695",
-      "table_name": "collections",
-      "operation": "UPDATE"
-    },
-    {
-      "id": "3152390c-1764-4f4d-b6cd-98979c868286",
-      "table_name": "collections",
-      "operation": "DELETE"
-    },
     {
       "id": "b716be7a-81b6-4d0a-a55c-a7ca60352ef3",
       "table_name": "project_documents",
@@ -534,11 +514,7 @@
         "b716be7a-81b6-4d0a-a55c-a7ca60352ef3",
         "037bd847-68e1-4e7a-bdce-aa50933dbc00",
         "10c417f5-603d-4bac-90f4-7365289adbc1",
-        "38411911-e90d-4b47-9d2b-39948be3e363",
-        "50c00273-d524-4d60-a9af-050d1cff51a3",
-        "2b94630b-b725-4715-ba72-3388d3c63cbd",
-        "0fdb8964-87a1-457b-bbcc-b6f05e44c695",
-        "3152390c-1764-4f4d-b6cd-98979c868286"
+        "38411911-e90d-4b47-9d2b-39948be3e363"
       ]
     },
     {
@@ -558,8 +534,7 @@
         "dbeae20d-f490-45f6-9de8-315e5f88b9a6",
         "7e830a72-19ac-4486-87a7-ca697f430fca",
         "2cb6d98c-14d8-44bd-a977-1ca1116fc44f",
-        "b508e4ca-46bd-478c-9582-fa1c671aa03e",
-        "50c00273-d524-4d60-a9af-050d1cff51a3"
+        "b508e4ca-46bd-478c-9582-fa1c671aa03e"
       ]
     },
     {
@@ -570,8 +545,7 @@
         "40c78f89-e227-4bfb-8b7d-5912dd054598",
         "dbeae20d-f490-45f6-9de8-315e5f88b9a6",
         "2cb6d98c-14d8-44bd-a977-1ca1116fc44f",
-        "7e830a72-19ac-4486-87a7-ca697f430fca",
-        "50c00273-d524-4d60-a9af-050d1cff51a3"
+        "7e830a72-19ac-4486-87a7-ca697f430fca"
       ]
     },
     {
@@ -625,9 +599,7 @@
         "b716be7a-81b6-4d0a-a55c-a7ca60352ef3",
         "037bd847-68e1-4e7a-bdce-aa50933dbc00",
         "10c417f5-603d-4bac-90f4-7365289adbc1",
-        "40c78f89-e227-4bfb-8b7d-5912dd054598",
-        "3eca4407-a589-4301-b705-1deb54a05811",
-        "a2cacc27-cd35-4851-a46a-df0d72cd3751"
+        "40c78f89-e227-4bfb-8b7d-5912dd054598"
       ]
     },
     {
@@ -790,7 +762,16 @@
     ]
   },
   "dynamic_text": {
-    "public_document_warning": []
+    "public_document_warning": [
+      {
+        "language": "en",
+        "text": "This is a warning!"
+      },
+      {
+        "language": "de",
+        "text": "This is a warning in German!"
+      }
+    ]
   },
   "supported_languages": [
     "en",
