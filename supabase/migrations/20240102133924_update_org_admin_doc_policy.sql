@@ -8,10 +8,6 @@ drop policy "Users with correct policies can SELECT on documents" on "public"."d
 
 drop policy "Users with correct policies can UPDATE on documents" on "public"."documents";
 
-alter table "public"."documents" add column "collection_id" uuid;
-
-alter table "public"."documents" add column "collection_metadata" json;
-
 create policy "Users with correct policies can DELETE on documents"
 on "public"."documents"
 as permissive
