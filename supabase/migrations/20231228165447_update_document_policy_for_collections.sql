@@ -1,3 +1,5 @@
+ALTER TABLE public.documents ADD COLUMN IF NOT EXISTS collection_id uuid REFERENCES public.collections;
+
 drop policy "Users with correct policies can DELETE on documents" on "public"."documents";
 
 drop policy "Users with correct policies can INSERT on documents" on "public"."documents";
