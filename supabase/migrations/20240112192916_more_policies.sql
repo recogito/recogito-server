@@ -1,5 +1,17 @@
 alter table "public"."extensions" enable row level security;
 
+drop policy if exists "Users with correct policies can DELETE on collections"
+on "public"."collections";
+
+drop policy if exists "Users with correct policies can INSERT on collections"
+on "public"."collections";
+
+drop policy if exists "Users with correct policies can SELECT on collections"
+on "public"."collections";
+
+drop policy if exists "Users with correct policies can UPDATE on collections"
+on "public"."collections";
+
 create policy "Users with correct policies can DELETE on collections"
 on "public"."collections"
 as permissive
