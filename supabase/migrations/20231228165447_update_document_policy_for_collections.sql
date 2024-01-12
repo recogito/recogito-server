@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS public.collections (
+    id uuid NOT NULL DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    created_at timestamp WITH TIME ZONE DEFAULT NOW(),
+    created_by uuid REFERENCES public.profiles,
+    updated_at timestamptz,
+    updated_by uuid REFERENCES public.profiles,
+    name varchar NOT NULL,
+    extension_id uuid REFERENCES public.extensions,
+    extension_metadata json
+);
+
 ALTER TABLE public.documents ADD COLUMN IF NOT EXISTS collection_id uuid REFERENCES public.collections;
 
 drop policy "Users with correct policies can DELETE on documents" on "public"."documents";
