@@ -1,3 +1,17 @@
+alter table "public"."extensions" enable row level security;
+
+drop policy if exists "Users with correct policies can DELETE on collections"
+on "public"."collections";
+
+drop policy if exists "Users with correct policies can INSERT on collections"
+on "public"."collections";
+
+drop policy if exists "Users with correct policies can SELECT on collections"
+on "public"."collections";
+
+drop policy if exists "Users with correct policies can UPDATE on collections"
+on "public"."collections";
+
 create policy "Users with correct policies can DELETE on collections"
 on "public"."collections"
 as permissive
@@ -30,9 +44,5 @@ to authenticated
 using (check_action_policy_organization(auth.uid(), 'collections'::character varying, 'UPDATE'::operation_types))
 with check (check_action_policy_organization(auth.uid(), 'collections'::character varying, 'UPDATE'::operation_types));
 
-
-CREATE TRIGGER on_collection_created BEFORE INSERT ON public.collections FOR EACH ROW EXECUTE FUNCTION create_dates_and_user();
-
-CREATE TRIGGER on_collection_updated BEFORE UPDATE ON public.collections FOR EACH ROW EXECUTE FUNCTION update_dates_and_user();
 
 
