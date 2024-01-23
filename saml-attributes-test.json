@@ -1,0 +1,27 @@
+{
+  "attributes": [
+    {
+      "id": "5705f185-a927-4fff-95bf-5d09d8aa8a20",
+      "saml_attribute_name": "givenName",
+      "custom_claim": "first_name",
+      "target_type": "profile_table",
+      "target_attribute": "first_name"
+    },
+    {
+      "id": "4c366474-5e8e-4c11-95be-eb25f9840abb",
+      "saml_attribute_name": "surname",
+      "custom_claim": "last_name",
+      "target_type": "profile_table",
+      "target_attribute": "last_name"
+    },
+    {
+      "id": "90fd5d92-5549-434e-9a86-65e5af02854d",
+      "attribute_name": "role",
+      "custom_claim": "role",
+      "target_type": "org_group_override",
+      "attribute_value_mapping": {
+        "faculty": "c070a787-152a-4b0d-9c9a-b2c436facdc4"
+      }
+    }
+  ]
+}

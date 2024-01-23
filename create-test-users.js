@@ -29,6 +29,12 @@ const main = async (options) => {
   await supabase.auth.signUp({
     email: 'professor@example.com',
     password: process.env.PROFESSOR_PW,
+    options: {
+      data: {
+        first_name: 'Prof',
+        last_name: 'Prof'
+      }
+    }    
   });
 
   supabase = Supa.createClient(
@@ -63,6 +69,12 @@ const main = async (options) => {
   await supabase.auth.signUp({
     email: 'student@example.com',
     password: process.env.STUDENT_PW,
+    options: {
+      data: {
+        first_name: 'Student',
+        last_name: 'Student'
+      }
+    }      
   });
 
   supabase = Supa.createClient(
@@ -82,6 +94,12 @@ const main = async (options) => {
   await supabase.auth.signUp({
     email: 'tutor@example.com',
     password: process.env.TUTOR_PW,
+    options: {
+      data: {
+        first_name: 'Tutor',
+        last_name: 'Tutor'
+      }
+    }  
   });
 
   const tutorProfile = await supabase
@@ -93,6 +111,12 @@ const main = async (options) => {
   await supabase.auth.signUp({
     email: 'reader@example.com',
     password: process.env.READER_PW,
+    options: {
+      data: {
+        first_name: 'Tutor',
+        last_name: 'Tutor'
+      }
+    }      
   });
 
   supabase = Supa.createClient(
@@ -112,6 +136,12 @@ const main = async (options) => {
   await supabase.auth.signUp({
     email: 'invited@example.com',
     password: process.env.INVITE_PW,
+    options: {
+      data: {
+        first_name: 'Invited',
+        last_name: 'Invited'
+      }
+    }      
   });
 
   supabase = Supa.createClient(

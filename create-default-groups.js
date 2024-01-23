@@ -310,6 +310,27 @@ const main = async (options) => {
     target_type: 'context',
     scope: 'system',
   });
+
+  // Add any custom attribute mapping
+  const attribArray = [];
+  config.attribute_mapping.attributes.forEach(a => {
+    attribArray.push({
+      id: a.id,
+      saml_attribute_name: a.saml_attribute_name,
+      custom_claim: a.custom_claim,
+      target_type: a.target_type,
+      target_attribute: a.target_attribute
+    })
+  });
+
+  const attribMappingResp = await supabase
+    .from('attribute_mapping')
+    .upsert(attribArray, { ignoreDuplicates: false })
+    .select();
+
+  if(attribMappingResp.error) {
+    console.error('Error adding attribute_mapping', attribMappingResp.error.message);
+  }
 };
 
 const optionDefinitions = [

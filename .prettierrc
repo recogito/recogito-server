@@ -4,6 +4,9 @@
   "semi": true,
   "singleQuote": true,
   "jsxSingleQuote": true,
+  "plugins": [
+    "prettier-plugin-sql"
+  ],
   "overrides": [
     {
       "files": [
@@ -11,6 +14,14 @@
       ],
       "options": {
         "singleQuote": true
+      }
+    },
+    {
+      "files": [
+        "**/*.sql"
+      ],
+      "options": {
+        "language": "postgresql"
       }
     }
   ]
