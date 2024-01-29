@@ -1,9 +1,9 @@
 CREATE
 OR REPLACE FUNCTION create_project_rpc (
-  _name VARCHAR,
-  _description VARCHAR,
-  _is_open_join BOOLEAN,
-  _is_open_edit BOOLEAN
+    _name VARCHAR,
+    _description VARCHAR,
+    _is_open_join BOOLEAN,
+    _is_open_edit BOOLEAN
 ) RETURNS SETOF public.projects AS $body$
 DECLARE
     _project_id uuid := gen_random_uuid();    -- The id of the new project
@@ -16,7 +16,7 @@ BEGIN
 
     INSERT INTO public.projects (id, created_by, created_at, name, description, is_open_join, is_open_edit) VALUES (_project_id, auth.uid(), NOW(), _name, _description, _is_open_join, _is_open_edit);
 
-    INSERT INTO public.contexts (id, created_by, created_at, project_id) VALUES (_context_id, auth.uid(), NOW(), _project_id);
+    INSERT INTO public.contexts (id, created_by, created_at, project_id, is_project_default) VALUES (_context_id, auth.uid(), NOW(), _project_id, TRUE);
 
     SELECT (id) INTO _default_context_definition_id FROM public.tag_definitions t WHERE t.scope = 'system' AND t.name = 'DEFAULT_CONTEXT';
 
