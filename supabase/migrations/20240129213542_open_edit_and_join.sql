@@ -35,7 +35,7 @@ BEGIN
     IF _is_open_edit AND _is_default_group THEN
 
       -- Get the default context
-      SELECT c.id INTO _context_id FROM public.contexts c WHERE c.project_id = _project_id AND c.name IS NULL;
+      SELECT c.id INTO _context_id FROM public.contexts c WHERE c.project_id = _project_id AND c.is_project_default IS TRUE;
 
       -- Iterate all of the layers and add the users
       FOR _record IN SELECT * from public.layer_contexts l WHERE l.context_id = _context_id LOOP
@@ -72,14 +72,13 @@ BEGIN
   SELECT c.project_id, c.name, c.is_project_default INTO _project_id, _context_name, _is_project_default FROM public.contexts c WHERE c.id = NEW.context_id;
   SELECT is_open_edit INTO _is_open_edit FROM public.projects p WHERE p.id = _project_id;
 
-  IF _is_open_edit AND _context_name IS NULL THEN
+  IF _is_open_edit AND _is_project_default IS TRUE THEN
     -- Get the project group
     SELECT (id) INTO _project_group_id FROM public.project_groups WHERE project_id = _project_id and is_default = TRUE;
 
     -- Get the layer group
     SELECT (id) INTO _layer_group_id FROM public.layer_groups WHERE layer_id = NEW.layer_id and is_default IS TRUE;
 
-    RAISE LOG '_layer_group_id %',_layer_group_id;
     -- Add all project members to default layer group
     FOR _record IN SELECT * FROM public.group_users WHERE group_type = 'project' AND type_id = _project_group_id
     LOOP

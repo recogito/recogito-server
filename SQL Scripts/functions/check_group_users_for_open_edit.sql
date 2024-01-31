@@ -20,7 +20,7 @@ BEGIN
     IF _is_open_edit AND _is_default_group THEN
 
       -- Get the default context
-      SELECT c.id INTO _context_id FROM public.contexts c WHERE c.project_id = _project_id AND c.name IS NULL;
+      SELECT c.id INTO _context_id FROM public.contexts c WHERE c.project_id = _project_id AND c.is_project_default IS TRUE;
 
       -- Iterate all of the layers and add the users
       FOR _record IN SELECT * from public.layer_contexts l WHERE l.context_id = _context_id LOOP
