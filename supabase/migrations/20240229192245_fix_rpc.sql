@@ -1,5 +1,10 @@
-CREATE
-OR REPLACE FUNCTION is_open_edit_join_from_context_rpc (_context_id UUID) RETURNS uuid AS $body$
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.is_open_edit_join_from_context_rpc(_context_id uuid)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
   _project_id   uuid;
 BEGIN
@@ -18,4 +23,7 @@ BEGIN
     RETURN _project_id;
 
 END
-$body$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$
+;
+
+
