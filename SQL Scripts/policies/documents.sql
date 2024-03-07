@@ -12,7 +12,6 @@ SELECT
             )
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'SELECT')
             OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'SELECT', id)
-            OR public.check_action_policy_layer_from_document (auth.uid (), 'documents', 'SELECT', id)
         )
     );
 
@@ -34,7 +33,6 @@ WITH
             AND public.check_action_policy_organization (auth.uid (), 'documents', 'INSERT')
         )
         OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'INSERT', id)
-        OR public.check_action_policy_layer_from_document (auth.uid (), 'documents', 'INSERT', id)
     );
 
 DROP POLICY IF EXISTS "Users with correct policies can UPDATE on documents" ON public.documents;
@@ -99,5 +97,4 @@ CREATE POLICY "Users with correct policies can DELETE on documents" ON public.do
         AND public.check_action_policy_organization (auth.uid (), 'documents', 'DELETE')
     )
     OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'DELETE', id)
-    OR public.check_action_policy_layer_from_document (auth.uid (), 'documents', 'DELETE', id)
 );

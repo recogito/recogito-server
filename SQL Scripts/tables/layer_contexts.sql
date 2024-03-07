@@ -24,3 +24,7 @@ ALTER TABLE public.layer_contexts
 -- Changes 7/26/23 --
 ALTER TABLE public.layer_contexts
     ADD COLUMN is_archived bool DEFAULT FALSE;
+
+-- Changes 3/6/24 --
+ALTER TABLE public.layer_contexts
+    ADD COLUMN is_active_layer BOOLEAN DEFAULT FALSE;
