@@ -10,13 +10,13 @@ BEGIN
   FOR _t_row_layer IN SELECT * FROM public.layers l WHERE l.is_archived IS FALSE 
   LOOP
     -- Get the context id.  At this point there should only be one per layer
-    SELECT id INTO _context_id FROM public.layer_contexts lc WHERE lc.layer_id = _t_row_layer.id;
+    SELECT lc.context_id INTO _context_id FROM public.layer_contexts lc WHERE lc.layer_id = _t_row_layer.id;
 
     -- Make this the active layer context
     UPDATE public.layer_contexts SET is_active_layer = TRUE WHERE id = _context_id;
 
     -- Create the context_documents entry
-    INSERT INTO public.context_documents (context_id, document_id) VALUES (_context_id, _t_row_layer.id);
+    INSERT INTO public.context_documents (context_id, document_id) VALUES (_context_id, _t_row_layer.document_id);
 
     -- Now create the context_user entry
     -- At this point there should only be the default layer groups with users

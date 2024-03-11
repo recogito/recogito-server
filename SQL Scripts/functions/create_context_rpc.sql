@@ -3,7 +3,7 @@ OR REPLACE FUNCTION create_context_rpc (
     _project_id uuid,
     _name VARCHAR,
     _description VARCHAR
-) RETURNS SETOF public.contexts AS $body$
+) RETURNS setof public.contexts AS $body$
 DECLARE
     _context_id uuid;
 BEGIN
@@ -13,7 +13,9 @@ BEGIN
 
     _context_id = extensions.uuid_generate_v4();
 
-    INSERT INTO public.contexts (id, created_by, created_at, _project_id) VALUES (_context_id, auth.uid(), NOW(), _project_id);
+    INSERT INTO public.contexts 
+        (id, created_by, created_at, name, description, project_id) 
+        VALUES (_context_id, auth.uid(), NOW(), _name, _description, _project_id);
     
     RETURN QUERY SELECT * FROM public.contexts WHERE id = _context_id;
 END

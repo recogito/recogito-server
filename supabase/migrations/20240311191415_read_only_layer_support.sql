@@ -1,18 +1,6 @@
 create type "public"."context_role_type" as enum ('admin', 'default');
 
-drop policy "Users with correct policies can DELETE on contexts" on "public"."contexts";
-
-drop policy "Users with correct policies can INSERT on contexts" on "public"."contexts";
-
-drop policy "Users with correct policies can SELECT on contexts" on "public"."contexts";
-
-drop policy "Users with correct policies can UPDATE on contexts" on "public"."contexts";
-
 drop policy "Users with correct policies can DELETE on documents" on "public"."documents";
-
-drop policy "Users with correct policies can INSERT on documents" on "public"."documents";
-
-drop policy "Users with correct policies can SELECT on documents" on "public"."documents";
 
 drop policy "Users with correct policies can UPDATE on documents" on "public"."documents";
 
@@ -23,10 +11,6 @@ drop policy "Users with correct policies can INSERT on group_users" on "public".
 drop policy "Users with correct policies can SELECT on group_users" on "public"."group_users";
 
 drop policy "Users with correct policies can UPDATE on group_users" on "public"."group_users";
-
-drop function if exists "public"."check_action_policy_layer_from_context"(user_id uuid, table_name character varying, operation operation_types, context_id uuid);
-
-drop function if exists "public"."check_action_policy_layer_from_document"(user_id uuid, table_name character varying, operation operation_types, document_id uuid);
 
 drop function if exists "public"."check_action_policy_layer_from_group_user"(user_id uuid, table_name character varying, operation operation_types, group_type group_types, type_id uuid);
 
@@ -114,7 +98,7 @@ alter table "public"."context_users" validate constraint "context_users_user_id_
 
 set check_function_bodies = off;
 
-CREATE OR REPLACE FUNCTION public.add_document_to_context_rpc(_context_id uuid, _document_id uuid)
+CREATE OR REPLACE FUNCTION public.add_documents_to_context_rpc(_context_id uuid, _document_ids uuid[])
  RETURNS boolean
  LANGUAGE plpgsql
  SECURITY DEFINER
@@ -122,9 +106,10 @@ AS $function$
 DECLARE
     _project_id uuid;
     _layer_id uuid;
+    _document_id uuid;
 BEGIN
     -- Find the project for this context  
-    SELECT id INTO _project_id FROM public.projects p 
+    SELECT p.id INTO _project_id FROM public.projects p 
       INNER JOIN public.contexts c ON c.id = _context_id 
       WHERE p.id = c.project_id;
 
@@ -138,21 +123,25 @@ BEGIN
         RETURN FALSE;
     END IF;  
 
-    -- Add a context_document record
-    INSERT INTO public.context_documents
+    -- Iterate through the document ids
+    FOREACH _document_id IN ARRAY _document_ids 
+    LOOP
+        -- Add a context_document record
+        INSERT INTO public.context_documents
             (created_by, created_at, context_id, document_id)
-        VALUES (auth.uid(), NOW(), _context_id, _document_id);
+            VALUES (auth.uid(), NOW(), _context_id, _document_id);
 
-    -- Add a layer for this document
-    _layer_id = extensions.uuid_generate_v4();
-    INSERT INTO public.layers
-            (id, created_by, created_at, document_id, project_id)
-        VALUES (_layer_id, auth.uid(), NOW(), _document_id, _project_id);
+        -- Add a layer for this document
+        _layer_id = extensions.uuid_generate_v4();
+        INSERT INTO public.layers
+                (id, created_by, created_at, document_id, project_id)
+            VALUES (_layer_id, auth.uid(), NOW(), _document_id, _project_id);
 
-    -- Add a layer context
-    INSERT INTO public.layer_contexts
-            (created_by, created_at, layer_id, context_id, is_active_layer)
-        VALUES (auth.uid(), NOW(), _layer_id, _context_id, TRUE);
+        -- Add a layer context
+        INSERT INTO public.layer_contexts
+                (created_by, created_at, layer_id, context_id, is_active_layer)
+            VALUES (auth.uid(), NOW(), _layer_id, _context_id, TRUE);
+    END LOOP;
 
     RETURN TRUE;
 END
@@ -174,7 +163,7 @@ DECLARE
     _role_id uuid;
 BEGIN
     -- Find the project for this context  
-    SELECT id INTO _project_id FROM public.projects p 
+    SELECT p.id INTO _project_id FROM public.projects p 
       INNER JOIN public.contexts c ON c.id = _context_id 
       WHERE p.id = c.project_id;
 
@@ -189,8 +178,8 @@ BEGIN
     END IF;  
 
     -- Get the role ids
-    SELECT id INTO _admin_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_admin = TRUE;
-    SELECT id INTO _default_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_default = TRUE;
+    SELECT g.role_id INTO _admin_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_admin = TRUE;
+    SELECT g.role_id INTO _default_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_default = TRUE;
 
     -- Add the users to the context_users table
     FOREACH _user IN ARRAY _users 
@@ -229,9 +218,46 @@ BEGIN
 
     _context_id = extensions.uuid_generate_v4();
 
-    INSERT INTO public.contexts (id, created_by, created_at, _project_id) VALUES (_context_id, auth.uid(), NOW(), _project_id);
+    INSERT INTO public.contexts 
+        (id, created_by, created_at, name, description, project_id) 
+        VALUES (_context_id, auth.uid(), NOW(), _name, _description, _project_id);
     
     RETURN QUERY SELECT * FROM public.contexts WHERE id = _context_id;
+END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.remove_users_from_context_rpc(_context_id uuid, _user_ids uuid[])
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    _project_id uuid;
+    _user uuid;
+BEGIN
+    -- Find the project for this context  
+    SELECT p.id INTO _project_id FROM public.projects p 
+      INNER JOIN public.contexts c ON c.id = _context_id 
+      WHERE p.id = c.project_id;
+
+    -- Didn't find the project for this context
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'project not found for context % ', _context_id;
+    END IF;
+
+    -- Check project policy that contexts can be updated by this user
+    IF NOT check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id) THEN
+        RETURN FALSE;
+    END IF;  
+
+    -- Remove the users from the context_users table
+    FOREACH _user IN ARRAY _user_ids 
+    LOOP
+      DELETE FROM public.context_users WHERE context_id = _context_id AND user_id = _user;
+    END LOOP;
+
+    RETURN TRUE;
 END
 $function$
 ;
@@ -245,14 +271,66 @@ BEGIN
     RETURN EXISTS(SELECT 1
 
                   FROM public.profiles pr
-                           INNER JOIN public.layer_contexts lc ON lc.layer_id = $4 AND lc.is_active_layer IS TRUE
-                           INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_ud = $1
+                           INNER JOIN public.layer_contexts lc ON lc.layer_id = $4
+                           INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
+                           INNER JOIN public.roles r ON cu.role_id = r.id
+                           INNER JOIN public.role_policies rp ON r.id = rp.role_id
+                           INNER JOIN public.policies p ON rp.policy_id = p.id
+                  
+                  WHERE p.table_name = $2
+                    AND p.operation = $3);
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.check_action_policy_layer_from_context(user_id uuid, table_name character varying, operation operation_types, context_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  _exists BOOLEAN;
+BEGIN
+    _exists = EXISTS(SELECT 1
+
+                  FROM public.profiles pr
+                           INNER JOIN public.context_users cu ON cu.context_id = $4 AND cu.user_id = $1
+                           INNER JOIN public.roles r ON cu.role_id = r.id
+                           INNER JOIN public.role_policies rp ON r.id = rp.role_id
+                           INNER JOIN public.policies p ON rp.policy_id = p.id
+
+                  WHERE p.table_name = $2
+                    AND p.operation = $3);
+    -- RAISE LOG 'Policy for layer from context % is %', $4, _exists;
+
+    RETURN _exists;                     
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.check_action_policy_layer_from_document(user_id uuid, table_name character varying, operation operation_types, document_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  _exists BOOLEAN;
+BEGIN
+    _exists = EXISTS(SELECT 1
+
+                  FROM public.profiles pr
+                           INNER JOIN public.layers l ON l.document_id = $4
+                           INNER JOIN public.layer_contexts lc ON lc.layer_id = l.id 
+                           INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
                            INNER JOIN public.roles r ON pg.role_id = r.id
                            INNER JOIN public.role_policies rp ON r.id = rp.role_id
                            INNER JOIN public.policies p ON rp.policy_id = p.id
 
                   WHERE p.table_name = $2
                     AND p.operation = $3);
+    -- RAISE LOG 'Policy for layer from document % is %', $4, _exists;
+
+    RETURN _exists;
 END;
 $function$
 ;
@@ -359,61 +437,12 @@ using (true)
 with check (true);
 
 
-create policy "Users with correct policies can DELETE on contexts"
-on "public"."contexts"
-as permissive
-for delete
-to authenticated
-using ((check_action_policy_organization(auth.uid(), 'contexts'::character varying, 'DELETE'::operation_types) OR check_action_policy_project(auth.uid(), 'contexts'::character varying, 'DELETE'::operation_types, project_id)));
-
-
-create policy "Users with correct policies can INSERT on contexts"
-on "public"."contexts"
-as permissive
-for insert
-to authenticated
-with check ((check_action_policy_organization(auth.uid(), 'contexts'::character varying, 'INSERT'::operation_types) OR check_action_policy_project(auth.uid(), 'contexts'::character varying, 'INSERT'::operation_types, project_id)));
-
-
-create policy "Users with correct policies can SELECT on contexts"
-on "public"."contexts"
-as permissive
-for select
-to authenticated
-using (((is_archived IS FALSE) AND (check_action_policy_organization(auth.uid(), 'contexts'::character varying, 'SELECT'::operation_types) OR check_action_policy_project(auth.uid(), 'contexts'::character varying, 'SELECT'::operation_types, project_id))));
-
-
-create policy "Users with correct policies can UPDATE on contexts"
-on "public"."contexts"
-as permissive
-for update
-to authenticated
-using ((check_action_policy_organization(auth.uid(), 'contexts'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project(auth.uid(), 'contexts'::character varying, 'UPDATE'::operation_types, project_id)))
-with check ((check_action_policy_organization(auth.uid(), 'contexts'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project(auth.uid(), 'contexts'::character varying, 'UPDATE'::operation_types, project_id)));
-
-
 create policy "Users with correct policies can DELETE on documents"
 on "public"."documents"
 as permissive
 for delete
 to authenticated
 using (((((is_private = false) OR (created_by = auth.uid()) OR is_admin_organization(auth.uid())) AND ((collection_id IS NULL) OR is_admin_organization(auth.uid())) AND check_action_policy_organization(auth.uid(), 'documents'::character varying, 'DELETE'::operation_types)) OR check_action_policy_project_from_document(auth.uid(), 'documents'::character varying, 'DELETE'::operation_types, id)));
-
-
-create policy "Users with correct policies can INSERT on documents"
-on "public"."documents"
-as permissive
-for insert
-to authenticated
-with check (((((is_private = false) OR (created_by = auth.uid()) OR is_admin_organization(auth.uid())) AND ((collection_id IS NULL) OR is_admin_organization(auth.uid())) AND check_action_policy_organization(auth.uid(), 'documents'::character varying, 'INSERT'::operation_types)) OR check_action_policy_project_from_document(auth.uid(), 'documents'::character varying, 'INSERT'::operation_types, id)));
-
-
-create policy "Users with correct policies can SELECT on documents"
-on "public"."documents"
-as permissive
-for select
-to authenticated
-using (((is_archived IS FALSE) AND ((((is_private = false) OR (created_by = auth.uid()) OR is_admin_organization(auth.uid())) AND check_action_policy_organization(auth.uid(), 'documents'::character varying, 'SELECT'::operation_types)) OR check_action_policy_project_from_document(auth.uid(), 'documents'::character varying, 'SELECT'::operation_types, id))));
 
 
 create policy "Users with correct policies can UPDATE on documents"

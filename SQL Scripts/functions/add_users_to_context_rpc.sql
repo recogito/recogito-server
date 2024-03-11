@@ -14,7 +14,7 @@ DECLARE
     _role_id uuid;
 BEGIN
     -- Find the project for this context  
-    SELECT id INTO _project_id FROM public.projects p 
+    SELECT p.id INTO _project_id FROM public.projects p 
       INNER JOIN public.contexts c ON c.id = _context_id 
       WHERE p.id = c.project_id;
 
@@ -29,8 +29,8 @@ BEGIN
     END IF;  
 
     -- Get the role ids
-    SELECT id INTO _admin_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_admin = TRUE;
-    SELECT id INTO _default_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_default = TRUE;
+    SELECT g.role_id INTO _admin_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_admin = TRUE;
+    SELECT g.role_id INTO _default_role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_default = TRUE;
 
     -- Add the users to the context_users table
     FOREACH _user IN ARRAY _users 
