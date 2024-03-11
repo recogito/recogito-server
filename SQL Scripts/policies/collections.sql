@@ -2,6 +2,7 @@ DROP POLICY IF EXISTS "Users with correct policies can SELECT on collections" ON
 
 CREATE POLICY "Users with correct policies can SELECT on collections" ON public.collections FOR SELECT TO authenticated
     USING (
+        is_archived IS FALSE AND
         public.check_action_policy_organization(auth.uid(), 'collections', 'SELECT')
     );
 
