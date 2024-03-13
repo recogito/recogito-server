@@ -13,7 +13,7 @@ BEGIN
     SELECT lc.context_id INTO _context_id FROM public.layer_contexts lc WHERE lc.layer_id = _t_row_layer.id;
 
     -- Make this the active layer context
-    UPDATE public.layer_contexts SET is_active_layer = TRUE WHERE id = _context_id;
+    UPDATE public.layer_contexts SET is_active_layer = TRUE WHERE context_id = _context_id;
 
     -- Create the context_documents entry
     INSERT INTO public.context_documents (context_id, document_id) VALUES (_context_id, _t_row_layer.document_id);
