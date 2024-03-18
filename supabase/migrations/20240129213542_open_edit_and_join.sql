@@ -167,8 +167,8 @@ to authenticated
 using ((((is_archived IS FALSE) AND (is_open_join IS TRUE)) OR ((is_archived IS FALSE) AND (check_action_policy_organization(auth.uid(), 'projects'::character varying, 'SELECT'::operation_types) OR check_action_policy_project(auth.uid(), 'projects'::character varying, 'SELECT'::operation_types, id)))));
 
 
-CREATE TRIGGER on_group_user_created_open_edit_check AFTER INSERT ON public.group_users FOR EACH ROW EXECUTE FUNCTION check_group_user_for_open_edit();
+CREATE TRIGGER IF NOT EXISTS on_group_user_created_open_edit_check AFTER INSERT ON public.group_users FOR EACH ROW EXECUTE FUNCTION check_group_user_for_open_edit();
 
-CREATE TRIGGER on_layer_context_created_check_open_edit AFTER INSERT ON public.layer_contexts FOR EACH ROW EXECUTE FUNCTION check_layer_context_for_open_edit();
+CREATE TRIGGER IF NOT EXISTS on_layer_context_created_check_open_edit AFTER INSERT ON public.layer_contexts FOR EACH ROW EXECUTE FUNCTION check_layer_context_for_open_edit();
 
 
