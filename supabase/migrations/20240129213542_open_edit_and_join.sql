@@ -4,9 +4,9 @@ drop policy "Users with correct policies can SELECT on projects" on "public"."pr
 
 alter table "public"."contexts" add column IF NOT EXISTS "is_project_default" boolean default false;
 
-alter table "public"."projects" add column "is_open_edit" boolean default false;
+alter table "public"."projects" add column IF NOT EXISTS "is_open_edit" boolean default false;
 
-alter table "public"."projects" add column "is_open_join" boolean default false;
+alter table "public"."projects" add column IF NOT EXISTS "is_open_join" boolean default false;
 
 set check_function_bodies = off;
 
