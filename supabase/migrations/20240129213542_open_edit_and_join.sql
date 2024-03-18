@@ -2,7 +2,7 @@ drop policy "Users with correct policies can SELECT on project_groups" on "publi
 
 drop policy "Users with correct policies can SELECT on projects" on "public"."projects";
 
-alter table "public"."contexts" add column "is_project_default" boolean default false;
+alter table "public"."contexts" add column IF NOT EXISTS "is_project_default" boolean default false;
 
 alter table "public"."projects" add column "is_open_edit" boolean default false;
 
