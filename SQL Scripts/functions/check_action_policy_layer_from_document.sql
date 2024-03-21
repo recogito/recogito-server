@@ -10,7 +10,7 @@ BEGIN
 
                   FROM public.profiles pr
                            INNER JOIN public.layers l ON l.document_id = $4
-                           INNER JOIN public.layer_contexts lc ON lc.layer_id = l.id 
+                           INNER JOIN public.layer_contexts lc ON lc.layer_id = l.id AND lc.is_active_layer = TRUE
                            INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
                            INNER JOIN public.roles r ON pg.role_id = r.id
                            INNER JOIN public.role_policies rp ON r.id = rp.role_id
@@ -18,7 +18,6 @@ BEGIN
 
                   WHERE p.table_name = $2
                     AND p.operation = $3);
-    -- RAISE LOG 'Policy for layer from document % is %', $4, _exists;
 
     RETURN _exists;
 END;

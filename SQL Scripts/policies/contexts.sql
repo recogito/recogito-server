@@ -5,7 +5,7 @@ CREATE POLICY "Users with correct policies can SELECT on contexts" ON public.con
         is_archived IS FALSE AND
         (public.check_action_policy_organization(auth.uid(), 'contexts', 'SELECT') OR
          public.check_action_policy_project(auth.uid(), 'contexts', 'SELECT', project_id) OR
-         public.check_action_policy_layer_from_context(auth.uid(), 'contexts', 'SELECT', id))
+         public.check_action_policy_layer_from_context_select(auth.uid(), 'contexts', id))
     );
 
 DROP POLICY IF EXISTS "Users with correct policies can INSERT on contexts" ON public.contexts;

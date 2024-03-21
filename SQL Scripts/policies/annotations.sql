@@ -6,7 +6,7 @@ CREATE POLICY "Users with correct policies can SELECT on annotations" ON public.
         public.check_for_private_annotation(auth.uid(), id) AND (
                 public.check_action_policy_organization(auth.uid(), 'annotations', 'SELECT') OR
                 public.check_action_policy_project_from_layer(auth.uid(), 'annotations', 'SELECT', layer_id) OR
-                public.check_action_policy_layer(auth.uid(), 'annotations', 'SELECT', layer_id)
+                public.check_action_policy_layer_select(auth.uid(), 'annotations', layer_id)
             ));
 
 DROP POLICY IF EXISTS "Users with correct policies can INSERT on annotations" ON public.annotations;

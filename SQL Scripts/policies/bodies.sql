@@ -6,7 +6,7 @@ CREATE POLICY "Users with correct policies can SELECT on bodies" ON public.bodie
         public.check_for_private_annotation(auth.uid(), annotation_id) AND (
                 public.check_action_policy_organization(auth.uid(), 'bodies', 'SELECT') OR
                 public.check_action_policy_project_from_layer(auth.uid(), 'bodies', 'SELECT', layer_id) OR
-                public.check_action_policy_layer(auth.uid(), 'bodies', 'SELECT', layer_id)
+                public.check_action_policy_layer_select(auth.uid(), 'bodies', layer_id)
             ));
 
 -- bodies can be inserted by annotation creator if it is the first body and by others if the have the policy
