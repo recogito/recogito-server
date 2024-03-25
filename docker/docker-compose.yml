@@ -4,7 +4,7 @@
 #   Stop:           docker compose down
 #   Destroy:        docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml down -v --remove-orphans
 
-version: "3.8"
+version: '3.8'
 
 services:
   studio:
@@ -14,10 +14,10 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "node",
-          "-e",
-          "require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})",
         ]
       timeout: 5s
       interval: 5s
@@ -46,7 +46,7 @@ services:
       - ${KONG_HTTP_PORT}:8000/tcp
       - ${KONG_HTTPS_PORT}:8443/tcp
     environment:
-      KONG_DATABASE: "off"
+      KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
       # https://github.com/supabase/cli/issues/14
       KONG_DNS_ORDER: LAST,A,CNAME
@@ -69,12 +69,12 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:9999/health"
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:9999/health',
         ]
       timeout: 5s
       interval: 5s
@@ -133,27 +133,21 @@ services:
       PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS}
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
-      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_DB_USE_LEGACY_GUCS: 'false'
 
   realtime:
     container_name: realtime-dev.supabase-realtime
     image: supabase/realtime:v2.10.1
     ulimits:
       nofile:
-        soft: "100000"
-        hard: "200000"
+        soft: '100000'
+        hard: '200000'
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "bash",
-          "-c",
-          "printf \\0 > /dev/tcp/localhost/4000"
-        ]
+      test: ['CMD', 'bash', '-c', "printf \\0 > /dev/tcp/localhost/4000"]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -172,7 +166,7 @@ services:
       FLY_APP_NAME: realtime
       SECRET_KEY_BASE: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
       ERL_AFLAGS: -proto_dist inet_tcp
-      ENABLE_TAILSCALE: "false"
+      ENABLE_TAILSCALE: 'false'
       DNS_NODES: "''"
     command: >
       sh -c "/app/bin/migrate && /app/bin/realtime eval 'Realtime.Release.seeds(Realtime.Repo)' && /app/bin/server"
@@ -191,12 +185,12 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:5000/status"
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:5000/status',
         ]
       timeout: 5s
       interval: 5s
@@ -215,7 +209,7 @@ services:
       # TODO: https://github.com/supabase/storage-api/issues/55
       REGION: ${AWS_REGION}
       GLOBAL_S3_BUCKET: ${GLOBAL_S3_BUCKET}
-      ENABLE_IMAGE_TRANSFORMATION: "true"
+      ENABLE_IMAGE_TRANSFORMATION: 'true'
       IMGPROXY_URL: http://imgproxy:5001
     volumes:
       - ${VOLUME_STORAGE}:/var/lib/storage:z
@@ -226,14 +220,14 @@ services:
     container_name: supabase-imgproxy
     image: darthsim/imgproxy:v3.8.0
     healthcheck:
-      test: [ "CMD", "imgproxy", "health" ]
+      test: ['CMD', 'imgproxy', 'health']
       timeout: 5s
       interval: 5s
       retries: 3
     environment:
-      IMGPROXY_BIND: ":5001"
+      IMGPROXY_BIND: ':5001'
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
-      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_USE_ETAG: 'true'
       IMGPROXY_ENABLE_WEBP_DETECTION: ${IMGPROXY_ENABLE_WEBP_DETECTION}
     volumes:
       - ${VOLUME_STORAGE}:/var/lib/storage:z
@@ -265,7 +259,7 @@ services:
       SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
       SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@{POSTGRES_DB}:${POSTGRES_PORT}/${POSTGRES_DB}
       # TODO: Allow configuring VERIFY_JWT per function. This PR might help: https://github.com/supabase/cli/pull/786
-      VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
+      VERIFY_JWT: '${FUNCTIONS_VERIFY_JWT}'
     volumes:
       - ${VOLUME_STORAGE}:/home/deno/functions:Z
     command:
@@ -308,11 +302,25 @@ services:
       - ${VOLUME_DB}/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:Z
       # PGDATA directory is persisted between restarts
       - ${VOLUME_DB}/data:/var/lib/postgresql/data:Z
+  canteloupe:
+    image: 'uclalibrary/cantaloupe:5.0.5-7'
+    ports:
+      - '8182:8182'
+      - '8183:8183'
+    environment:
+      - CANTALOUPE_ENDPOINT_ADMIN_SECRET=$CANTELOUPE_ADMIN_PASSWORD
+      - CANTALOUPE_ENDPOINT_ADMIN_ENABLED=$CANTELOUPE_ADMIN_ENABLED
+      - CANTALOUPE_SOURCE_STATIC=HttpSource
+      - CANTALOUPE_HTTPSOURCE_LOOKUP_STRATEGY=ScriptLookupStrategy
+      - CANTALOUPE_HTTPSOURCE_BASICLOOKUPSTRATEGY_URL_PREFIX=http://kong:8000/storage/v1/object/authenticated/documents/
+      - CANTALOUPE_DELEGATE_SCRIPT_ENABLED=true
+      - CANTALOUPE_DELEGATE_SCRIPT_PATHNAME=/etc/cantaloupe/delegates.rb
+      - JAVA_OPTS="--add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED"
   client:
     image: lwjameson/recogito-client:1.0.4
     container_name: bonn-client
     ports:
-      - "8090:3000"
+      - '8090:3000'
     environment:
       - PUBLIC_SUPABASE=${SUPABASE_PUBLIC_URL}
       - SUPABASE_SERVERCLIENT_URL=${SUPABASE_SERVERCLIENT_URL}
