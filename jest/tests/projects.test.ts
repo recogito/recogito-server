@@ -16,11 +16,17 @@ let TEST_PROJECT_ID = '';
 let TEST_ORG_PROJECT_ID = '';
 const NO_STUDENT_PROJECT_ID = '44847ef2-b2ff-48f9-b414-1a0ba316a297';
 let TEST_CONTEXT_ID: string = '';
+let TEST_CONTEXT_2_ID: string = '';
 let TEST_LAYER_ID = '';
+let TEST_LAYER_2_ID = '';
 const TEST_PUBLIC_ANNOTATION_ID = '63c3ff8f-6db3-40fd-bd70-bfd767f48e2a';
+const TEST_PUBLIC_ANNOTATION_2_ID = '0597150e-193b-4f51-b14e-2a6870c9d9ee';
 const TEST_PRIVATE_ANNOTATION_ID = '72d41001-95e8-426c-959a-f1f7736a7fc3';
 const TEST_PROFESSOR_ANNOTATION_ID = '0b7dc46c-025c-4bf7-869b-1778c038cdaf';
+const TEST_PROFESSOR_ANNOTATION_2_ID = '88e247ec-39bd-4ef7-9022-4be7e9956987';
+const TEST_BAD_ANNOTATION_ID = '9790d2bd-29a1-4dc1-b5b6-3eeb1900f8e5';
 const TEST_PUBLIC_TARGET_ID = '4dfa5447-8392-4f62-b128-f1a7c094997d';
+const TEST_PUBLIC_TARGET_2_ID = 'ba379ac9-fbd3-4323-a2f3-10de50f10a2a';
 const TEST_CANNOT_CREATE_TARGET_ID = '8c78bd59-b1e5-450e-a2b9-4ffe73e12d63';
 const TEST_PROFESSOR_TARGET_ID = '40b936f0-d818-43f8-aa8d-a73abfeb73ff';
 const TEST_PRIVATE_TARGET_ID = 'f73d0d90-547c-425f-9369-56960ab3b3a3';
@@ -326,6 +332,23 @@ async function deleteLayer(supabase: SupabaseClient, layerId: string) {
 
 async function getLayerGroups(supabase: SupabaseClient, layerId: string) {
   return supabase.from('layer_groups').select().eq('layer_id', layerId);
+}
+
+async function addReadOnlyLayerToContext(
+  supabase: SupabaseClient,
+  contextId: string,
+  layerId: string
+) {
+  const result = await supabase.rpc('add_read_only_layers_rpc', {
+    _context_id: contextId,
+    _layer_ids: [layerId],
+  });
+
+  if (!result.error && result.data === true) {
+    return true;
+  }
+
+  return false;
 }
 
 async function addUserToContext(
@@ -2409,6 +2432,125 @@ test('Students can get their layer contexts', async () => {
     const result = await getMyLayerContexts(
       supabase,
       TEST_CONTEXT_ID as string
+    );
+
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can insert more contexts to their project', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await addContextToProject(
+      supabase,
+      TEST_PROJECT_ID,
+      'Test Context 2'
+    );
+
+    if (result.data && result.data.length > 0) {
+      TEST_CONTEXT_2_ID = result.data[0].id;
+      return true;
+    }
+
+    expect(result.data.length > 0).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can add documents to contexts they own', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await addDocumentToContext(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_2_ID
+    );
+
+    expect(result.data).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can select layers from their contexts', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await getDocumentActiveLayerContext(
+      supabase,
+      TEST_PROJECT_ID,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_2_ID
+    );
+
+    if (!result.error && result.data && result.data.length) {
+      TEST_LAYER_2_ID = result.data[0].layer_id;
+      expect(result.data.length > 0).toBe(true);
+    }
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can add read only layers to their contexts', async () => {
+  const supabase = await loginAsProfessor();
+
+  if (supabase) {
+    const result = await addReadOnlyLayerToContext(
+      supabase,
+      TEST_CONTEXT_ID,
+      TEST_LAYER_2_ID
+    );
+
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Students cannot create Annotations in read-only layers', async () => {
+  const supabase = await loginAsStudent();
+
+  if (supabase) {
+    const result = await insertAnnotation(
+      supabase,
+      TEST_PUBLIC_ANNOTATION_2_ID,
+      TEST_LAYER_2_ID,
+      false
+    );
+
+    expect(result).toBe(false);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can create public annotations on layers that they have membership', async () => {
+  const supabase = await loginAsProfessor();
+
+  if (supabase) {
+    const result = await insertAnnotation(
+      supabase,
+      TEST_PROFESSOR_ANNOTATION_2_ID,
+      TEST_LAYER_2_ID,
+      false
+    );
+
+    expect(result).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Students can select Annotations on read-only layers', async () => {
+  const supabase = await loginAsStudent();
+
+  if (supabase) {
+    const result = await selectAnnotation(
+      supabase,
+      TEST_PROFESSOR_ANNOTATION_2_ID
     );
 
     expect(result).toBe(true);
