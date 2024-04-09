@@ -93,7 +93,15 @@ VALUES
     ('50c00273-d524-4d60-a9af-050d1cff51a3', 'collections', 'SELECT'),
     ('2b94630b-b725-4715-ba72-3388d3c63cbd', 'collections', 'INSERT'),
     ('0fdb8964-87a1-457b-bbcc-b6f05e44c695', 'collections', 'UPDATE'),
-    ('3152390c-1764-4f4d-b6cd-98979c868286', 'collections', 'DELETE');
+    ('3152390c-1764-4f4d-b6cd-98979c868286', 'collections', 'DELETE'),
+    ('a4b82076-cf7d-4f7a-b24d-f12587d71590', 'context_documents', 'SELECT'),
+    ('02e217c8-9409-4223-a118-ae0487ce4fa5', 'context_documents', 'INSERT'),
+    ('28a43878-359f-4761-9a45-573fc7b593b1', 'context_documents', 'UPDATE'),
+    ('80c7a2a2-79e7-4163-b53f-5583506021c1', 'context_documents', 'DELETE'),
+    ('51eb3610-a7ee-4fd6-9a71-65214aee0dd7', 'context_users', 'SELECT'),
+    ('3aa4d2bf-2127-4c66-8858-e9a6b59dbd07', 'context_users', 'INSERT'),
+    ('0377daa4-38b3-459d-8715-999532af1cb1', 'context_users', 'UPDATE'),
+    ('6a4fec4c-a1c3-4d20-8451-c6ecba886a82', 'context_users', 'DELETE');     
 
 ALTER TABLE public.role_policies
 ADD CONSTRAINT role_policies_policy_id_fkey FOREIGN KEY (policy_id) REFERENCES public.policies (id);

@@ -1,5 +1,11 @@
 create type "public"."context_role_type" as enum ('admin', 'default');
 
+drop policy "Users with correct policies can SELECT on annotations" on "public"."annotations";
+
+drop policy "Users with correct policies can SELECT on bodies" on "public"."bodies";
+
+drop policy "Users with correct policies can SELECT on contexts" on "public"."contexts";
+
 drop policy "Users with correct policies can DELETE on documents" on "public"."documents";
 
 drop policy "Users with correct policies can UPDATE on documents" on "public"."documents";
@@ -11,6 +17,10 @@ drop policy "Users with correct policies can INSERT on group_users" on "public".
 drop policy "Users with correct policies can SELECT on group_users" on "public"."group_users";
 
 drop policy "Users with correct policies can UPDATE on group_users" on "public"."group_users";
+
+drop policy "Users with correct policies can SELECT on layers" on "public"."layers";
+
+drop policy "Users with correct policies can SELECT on targets" on "public"."targets";
 
 drop function if exists "public"."check_action_policy_layer_from_group_user"(user_id uuid, table_name character varying, operation operation_types, group_type group_types, type_id uuid);
 
@@ -148,6 +158,109 @@ END
 $function$
 ;
 
+CREATE OR REPLACE FUNCTION public.add_documents_to_project_rpc(_project_id uuid, _document_ids uuid[])
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    _context_id uuid;
+    _layer_id uuid;
+    _document_id uuid;
+BEGIN
+    -- Check project policy that project documents can be updated by this user
+    IF NOT check_action_policy_project(auth.uid(), 'project_documents', 'UPDATE', _project_id) THEN
+        RETURN FALSE;
+    END IF; 
+
+    -- Find the default context for this project  
+    SELECT c.id INTO _context_id FROM public.contexts c 
+      WHERE c.project_id = _project_id AND c.is_project_default IS TRUE;
+
+    -- Didn't find the default context for this project
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Default context not found for project % ', _project_id;
+    END IF; 
+
+    -- Iterate through the document ids and add to project_documents and context_documents for the default context
+    FOREACH _document_id IN ARRAY _document_ids 
+    LOOP
+        -- Add the document to project_documents
+        INSERT INTO public.project_documents 
+            (created_by, created_at, project_id, document_id)
+            VALUES (auth.uid(), NOW(), _project_id, _document_id);
+        
+        -- Add a context_document record to the default context
+        INSERT INTO public.context_documents
+            (created_by, created_at, context_id, document_id)
+            VALUES (auth.uid(), NOW(), _context_id, _document_id);
+
+        -- Add the default layer
+        _layer_id = uuid_generate_v4();
+
+        INSERT INTO public.layers 
+            (id, document_id, project_id)
+            VALUES (_layer_id, _document_id, _project_id);
+
+        -- Add the layer_context
+        INSERT INTO public.layer_contexts
+            (layer_id, context_id, is_active_layer)
+            VALUES (_layer_id, _context_id, TRUE);
+    END LOOP;
+
+    RETURN TRUE;
+END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.add_read_only_layers_rpc(_context_id uuid, _layer_ids uuid[])
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    _project_id       uuid;
+    _layer_id         uuid;
+    _layer_project_id public.layers %rowtype;
+BEGIN
+    -- Find the project for this context  
+    SELECT p.id INTO _project_id FROM public.projects p 
+      INNER JOIN public.contexts c ON c.id = _context_id 
+      WHERE p.id = c.project_id;
+
+    -- Didn't find the project for this context
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'project not found for context % ', _context_id;
+    END IF;
+
+    -- Check project policy that contexts can be updated by this user
+    IF NOT check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id) THEN
+        RETURN FALSE;
+    END IF;  
+
+    -- Iterate through the layer ids
+    FOREACH _layer_id IN ARRAY _layer_ids 
+    LOOP
+        -- Should only add layers which belong to the current project
+        SELECT l.project_id INTO _layer_project_id FROM public.layers l 
+          WHERE l.id = _layer_id AND l.project_id = _project_id;
+
+        -- Didn't find this layer in this project
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'layer % not found for project % ', _layer_id, _project_id;
+        END IF;          
+
+        -- Add a layer context and add them as the non-active layer
+        INSERT INTO public.layer_contexts
+                (created_by, created_at, layer_id, context_id, is_active_layer)
+            VALUES (auth.uid(), NOW(), _layer_id, _context_id, FALSE);
+    END LOOP;
+
+    RETURN TRUE;
+END
+$function$
+;
+
 create type "public"."add_user_type" as ("user_id" uuid, "role" context_role_type);
 
 CREATE OR REPLACE FUNCTION public.add_users_to_context_rpc(_context_id uuid, _users add_user_type[])
@@ -201,6 +314,291 @@ BEGIN
 
     RETURN TRUE;
 END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.archive_context_documents_rpc(_context_id uuid, _document_ids uuid[])
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    _project_id uuid;
+    _layer_id uuid;
+    _document_id uuid;
+    _row RECORD;
+BEGIN
+    -- Find the project for this context  
+    SELECT p.id INTO _project_id FROM public.projects p 
+      INNER JOIN public.contexts c ON c.id = _context_id 
+      WHERE p.id = c.project_id;
+
+    -- Check project policy that context documents can be updated by this user
+    IF NOT check_action_policy_project(auth.uid(), 'context_documents', 'UPDATE', _project_id) THEN
+        RETURN FALSE;
+    END IF; 
+
+    -- Iterate through the document ids and archive them in project_documents and all context_documents
+    FOREACH _document_id IN ARRAY _document_ids 
+    LOOP
+        -- Archive the context_documents record
+        UPDATE public.context_document cd 
+          SET is_archived = TRUE 
+          WHERE cd.document_id = _document_id AND cd.context_id = _context_id;
+        
+        -- Archive any related layers
+        FOR _row IN SELECT * FROM public.layers l 
+          INNER JOIN public.layer_contexts lc ON lc.context_id = _context_id
+          WHERE l.document_id = _document_id
+        LOOP 
+          UPDATE public.layers 
+            SET is_archived = TRUE 
+            WHERE id = _row.id;
+
+          UPDATE public.layer_contexts lc
+            SET is_archived = TRUE
+            WHERE lc.context_id = _context_id AND lc.layer_id = _row.id;
+        END LOOP;
+          
+    END LOOP;
+
+    RETURN TRUE;
+END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.archive_context_documents_rpc(_project_id uuid, _context_id uuid, _document_ids uuid[])
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    _layer_id uuid;
+    _document_id uuid;
+    _row RECORD;
+BEGIN
+    -- Check project policy that context documents can be updated by this user
+    IF NOT check_action_policy_project(auth.uid(), 'context_documents', 'UPDATE', _project_id) THEN
+        RETURN FALSE;
+    END IF; 
+
+    -- Iterate through the document ids and archive them in project_documents and all context_documents
+    FOREACH _document_id IN ARRAY _document_ids 
+    LOOP
+        -- Archive the context_documents record
+        UPDATE public.context_document cd 
+          SET is_archived = TRUE 
+          WHERE cd.document_id = _document_id AND cd.context_id = _context_id;
+        
+        -- Archive any related layers
+        FOR _row IN SELECT * FROM public.layers l 
+          INNER JOIN public.layer_contexts lc ON lc.context_id = _context_id
+          WHERE l.document_id = _document_id
+        LOOP 
+          UPDATE public.layers 
+            SET is_archived = TRUE 
+            WHERE id = _row.id;
+
+          UPDATE public.layer_contexts lc
+            SET is_archived = TRUE
+            WHERE lc.context_id = _context_id AND lc.layer_id = _row.id;
+        END LOOP;
+          
+    END LOOP;
+
+    RETURN TRUE;
+END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.archive_context_rpc(_context_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    _project_id uuid;
+    _layer_id uuid;
+    _document_id uuid;
+    _row RECORD;
+    _row_2 RECORD;
+BEGIN
+    -- Find the project for this context  
+    SELECT p.id INTO _project_id FROM public.projects p 
+      INNER JOIN public.contexts c ON c.id = _context_id 
+      WHERE p.id = c.project_id;
+
+    -- Check project policy that context documents can be updated by this user
+    IF NOT check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id) THEN
+        RAISE LOG 'Check action policy failed for project %', _project_id;
+        RETURN FALSE;
+    END IF; 
+
+    -- Iterate through the document ids in this context and archive them in all context_documents
+    FOR _row IN SELECT * FROM public.context_documents cd WHERE cd.context_id = _context_id 
+    LOOP
+        -- Archive the context_documents record
+        UPDATE public.context_documents cd 
+          SET is_archived = TRUE 
+          WHERE cd.id = _row.id;
+        
+        -- Archive any related layers
+        FOR _row_2 IN SELECT * FROM public.layers l 
+          INNER JOIN public.layer_contexts lc ON lc.context_id = _context_id
+          WHERE l.document_id = _row.document_id
+        LOOP 
+          UPDATE public.layers 
+            SET is_archived = TRUE 
+            WHERE id = _row_2.id;
+
+          UPDATE public.layer_contexts lc
+            SET is_archived = TRUE
+            WHERE lc.context_id = _context_id AND lc.layer_id = _row_2.id;
+        END LOOP;
+          
+    END LOOP;
+
+    UPDATE public.contexts 
+      SET is_archived = TRUE 
+      WHERE id = _context_id;
+    RETURN TRUE;
+END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.archive_project_documents_rpc(_project_id uuid, _document_ids uuid[])
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    _context_id uuid;
+    _layer_id uuid;
+    _document_id uuid;
+    _row RECORD;
+BEGIN
+    -- Check project policy that project documents can be updated by this user
+    IF NOT check_action_policy_project(auth.uid(), 'project_documents', 'UPDATE', _project_id) THEN
+        RETURN FALSE;
+    END IF; 
+
+    -- Iterate through the document ids and archive them in project_documents and all context_documents
+    FOREACH _document_id IN ARRAY _document_ids 
+    LOOP
+        -- Archive the project_documents record
+        UPDATE public.project_documents pd 
+          SET is_archived = TRUE 
+          WHERE pd.document_id = _document_id AND pd.project_id = _project_id;
+        
+        -- Archive the document in all contexts that contain it
+        FOR _row IN SELECT * FROM public.contexts c WHERE c.project_id = _project_id
+        LOOP 
+          UPDATE public.context_documents 
+            SET is_archived = TRUE 
+            WHERE document_id = _document_id;
+        END LOOP;
+          
+    END LOOP;
+
+    RETURN TRUE;
+END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.check_action_policy_layer_from_context(user_id uuid, table_name character varying, context_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  _exists BOOLEAN;
+BEGIN
+    _exists = EXISTS(SELECT 1
+
+                  FROM public.profiles pr
+                           INNER JOIN public.context_users cu ON cu.context_id = $3 AND cu.user_id = $1
+                           INNER JOIN public.roles r ON cu.role_id = r.id
+                           INNER JOIN public.role_policies rp ON r.id = rp.role_id
+                           INNER JOIN public.policies p ON rp.policy_id = p.id
+
+                  WHERE p.table_name = $2
+                    AND p.operation = 'SELECT');
+    -- RAISE LOG 'Policy for layer from context % is %', $4, _exists;
+
+    RETURN _exists;                     
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.check_action_policy_layer_from_context_select(user_id uuid, table_name character varying, context_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  _exists BOOLEAN;
+BEGIN
+    _exists = EXISTS(SELECT 1
+
+                  FROM public.profiles pr
+                           INNER JOIN public.context_users cu ON cu.context_id = $3 AND cu.user_id = $1
+                           INNER JOIN public.roles r ON cu.role_id = r.id
+                           INNER JOIN public.role_policies rp ON r.id = rp.role_id
+                           INNER JOIN public.policies p ON rp.policy_id = p.id
+
+                  WHERE p.table_name = $2
+                    AND p.operation = 'SELECT');
+    -- RAISE LOG 'Policy for layer from context % is %', $4, _exists;
+
+    RETURN _exists;                     
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.check_action_policy_layer_from_document(user_id uuid, table_name character varying, document_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  _exists BOOLEAN;
+BEGIN
+    _exists = EXISTS(SELECT 1
+
+                  FROM public.profiles pr
+                           INNER JOIN public.layers l ON l.document_id = $3
+                           INNER JOIN public.layer_contexts lc ON lc.layer_id = l.id
+                           INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
+                           INNER JOIN public.roles r ON pg.role_id = r.id
+                           INNER JOIN public.role_policies rp ON r.id = rp.role_id
+                           INNER JOIN public.policies p ON rp.policy_id = p.id
+
+                  WHERE p.table_name = $2
+                    AND p.operation = 'SELECT');
+
+    RETURN _exists;
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.check_action_policy_layer_select(user_id uuid, table_name character varying, layer_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+    RETURN EXISTS(SELECT 1
+
+        FROM public.profiles pr
+                  INNER JOIN public.layer_contexts lc ON lc.layer_id = $3
+                  INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
+                  INNER JOIN public.roles r ON cu.role_id = r.id
+                  INNER JOIN public.role_policies rp ON r.id = rp.role_id
+                  INNER JOIN public.policies p ON rp.policy_id = p.id
+        
+        WHERE p.table_name = $2
+          AND p.operation = 'SELECT');
+END;
 $function$
 ;
 
@@ -271,7 +669,7 @@ BEGIN
     RETURN EXISTS(SELECT 1
 
                   FROM public.profiles pr
-                           INNER JOIN public.layer_contexts lc ON lc.layer_id = $4
+                           INNER JOIN public.layer_contexts lc ON lc.layer_id = $4 AND lc.is_active_layer = TRUE
                            INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
                            INNER JOIN public.roles r ON cu.role_id = r.id
                            INNER JOIN public.role_policies rp ON r.id = rp.role_id
@@ -294,7 +692,8 @@ BEGIN
     _exists = EXISTS(SELECT 1
 
                   FROM public.profiles pr
-                           INNER JOIN public.context_users cu ON cu.context_id = $4 AND cu.user_id = $1
+                           INNER JOIN public.layer_context lc ON lc.context_id = $4 AND lc.is_active_layer = TRUE
+                           INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
                            INNER JOIN public.roles r ON cu.role_id = r.id
                            INNER JOIN public.role_policies rp ON r.id = rp.role_id
                            INNER JOIN public.policies p ON rp.policy_id = p.id
@@ -320,7 +719,7 @@ BEGIN
 
                   FROM public.profiles pr
                            INNER JOIN public.layers l ON l.document_id = $4
-                           INNER JOIN public.layer_contexts lc ON lc.layer_id = l.id 
+                           INNER JOIN public.layer_contexts lc ON lc.layer_id = l.id AND lc.is_active_layer = TRUE
                            INNER JOIN public.context_users cu ON cu.context_id = lc.context_id AND cu.user_id = $1
                            INNER JOIN public.roles r ON pg.role_id = r.id
                            INNER JOIN public.role_policies rp ON r.id = rp.role_id
@@ -328,7 +727,6 @@ BEGIN
 
                   WHERE p.table_name = $2
                     AND p.operation = $3);
-    -- RAISE LOG 'Policy for layer from document % is %', $4, _exists;
 
     RETURN _exists;
 END;
@@ -419,13 +817,37 @@ grant truncate on table "public"."context_users" to "service_role";
 
 grant update on table "public"."context_users" to "service_role";
 
-create policy "Enable ALL access for authenticated users"
+create policy "Users with correct policies can DELETE on context_documents"
 on "public"."context_documents"
 as permissive
-for all
+for delete
 to authenticated
-using (true)
-with check (true);
+using ((check_action_policy_organization(auth.uid(), 'context_documents'::character varying, 'DELETE'::operation_types) OR check_action_policy_project_from_context(auth.uid(), 'context_documents'::character varying, 'DELETE'::operation_types, context_id) OR check_action_policy_layer_from_context(auth.uid(), 'context_documents'::character varying, 'DELETE'::operation_types, context_id)));
+
+
+create policy "Users with correct policies can INSERT on context_documents"
+on "public"."context_documents"
+as permissive
+for insert
+to authenticated
+with check ((check_action_policy_organization(auth.uid(), 'context_documents'::character varying, 'INSERT'::operation_types) OR check_action_policy_project_from_context(auth.uid(), 'context_documents'::character varying, 'INSERT'::operation_types, context_id) OR check_action_policy_layer_from_context(auth.uid(), 'context_documents'::character varying, 'INSERT'::operation_types, context_id)));
+
+
+create policy "Users with correct policies can SELECT on context_documents"
+on "public"."context_documents"
+as permissive
+for select
+to authenticated
+using (((is_archived IS FALSE) AND (check_action_policy_organization(auth.uid(), 'context_documents'::character varying, 'SELECT'::operation_types) OR check_action_policy_project_from_context(auth.uid(), 'context_documents'::character varying, 'SELECT'::operation_types, context_id) OR check_action_policy_layer_from_context_select(auth.uid(), 'context_documents'::character varying, context_id))));
+
+
+create policy "Users with correct policies can UPDATE on context_documents"
+on "public"."context_documents"
+as permissive
+for update
+to authenticated
+using ((check_action_policy_organization(auth.uid(), 'context_documents'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project_from_context(auth.uid(), 'context_documents'::character varying, 'UPDATE'::operation_types, context_id) OR check_action_policy_layer_from_context(auth.uid(), 'context_documents'::character varying, 'UPDATE'::operation_types, context_id)))
+with check ((check_action_policy_organization(auth.uid(), 'context_documents'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project_from_context(auth.uid(), 'context_documents'::character varying, 'UPDATE'::operation_types, context_id) OR check_action_policy_layer_from_context(auth.uid(), 'context_documents'::character varying, 'UPDATE'::operation_types, context_id)));
 
 
 create policy "Enable ALL access for Authenticated users"
@@ -435,6 +857,30 @@ for all
 to authenticated
 using (true)
 with check (true);
+
+
+create policy "Users with correct policies can SELECT on annotations"
+on "public"."annotations"
+as permissive
+for select
+to authenticated
+using (((is_archived IS FALSE) AND check_for_private_annotation(auth.uid(), id) AND (check_action_policy_organization(auth.uid(), 'annotations'::character varying, 'SELECT'::operation_types) OR check_action_policy_project_from_layer(auth.uid(), 'annotations'::character varying, 'SELECT'::operation_types, layer_id) OR check_action_policy_layer_select(auth.uid(), 'annotations'::character varying, layer_id))));
+
+
+create policy "Users with correct policies can SELECT on bodies"
+on "public"."bodies"
+as permissive
+for select
+to authenticated
+using (((is_archived IS FALSE) AND check_for_private_annotation(auth.uid(), annotation_id) AND (check_action_policy_organization(auth.uid(), 'bodies'::character varying, 'SELECT'::operation_types) OR check_action_policy_project_from_layer(auth.uid(), 'bodies'::character varying, 'SELECT'::operation_types, layer_id) OR check_action_policy_layer_select(auth.uid(), 'bodies'::character varying, layer_id))));
+
+
+create policy "Users with correct policies can SELECT on contexts"
+on "public"."contexts"
+as permissive
+for select
+to authenticated
+using (((is_archived IS FALSE) AND (check_action_policy_organization(auth.uid(), 'contexts'::character varying, 'SELECT'::operation_types) OR check_action_policy_project(auth.uid(), 'contexts'::character varying, 'SELECT'::operation_types, project_id) OR check_action_policy_layer_from_context_select(auth.uid(), 'contexts'::character varying, id))));
 
 
 create policy "Users with correct policies can DELETE on documents"
@@ -485,6 +931,22 @@ for update
 to authenticated
 using ((check_action_policy_organization(auth.uid(), 'group_users'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project_from_group_user(auth.uid(), 'group_users'::character varying, 'UPDATE'::operation_types, group_type, type_id)))
 with check ((check_action_policy_organization(auth.uid(), 'group_users'::character varying, 'UPDATE'::operation_types) OR check_action_policy_project_from_group_user(auth.uid(), 'group_users'::character varying, 'UPDATE'::operation_types, group_type, type_id)));
+
+
+create policy "Users with correct policies can SELECT on layers"
+on "public"."layers"
+as permissive
+for select
+to authenticated
+using (((is_archived IS FALSE) AND (check_action_policy_organization(auth.uid(), 'layers'::character varying, 'SELECT'::operation_types) OR check_action_policy_project(auth.uid(), 'layers'::character varying, 'SELECT'::operation_types, project_id) OR check_action_policy_layer_select(auth.uid(), 'layers'::character varying, id))));
+
+
+create policy "Users with correct policies can SELECT on targets"
+on "public"."targets"
+as permissive
+for select
+to authenticated
+using (((is_archived IS FALSE) AND (check_for_private_annotation(auth.uid(), annotation_id) AND (check_action_policy_organization(auth.uid(), 'targets'::character varying, 'SELECT'::operation_types) OR check_action_policy_project_from_layer(auth.uid(), 'targets'::character varying, 'SELECT'::operation_types, layer_id) OR check_action_policy_layer_select(auth.uid(), 'targets'::character varying, layer_id)))));
 
 
 
