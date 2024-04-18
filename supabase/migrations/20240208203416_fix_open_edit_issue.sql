@@ -49,6 +49,6 @@ END
 $function$
 ;
 
-CREATE TRIGGER on_project_updated_check_open_edit AFTER UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION check_for_project_open_edit_change();
+CREATE OR REPLACE TRIGGER on_project_updated_check_open_edit AFTER UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION check_for_project_open_edit_change();
 
 

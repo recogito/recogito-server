@@ -42,6 +42,25 @@
     {
       "id": "6a4fec4c-a1c3-4d20-8451-c6ecba886a82",
       "table_name": "context_users",
+            "operation": "DELETE"
+    },
+      "id": "79cd967d-f268-4bb8-9e84-0eafeac3307f",
+      "table_name": "installed_plugins",
+      "operation": "SELECT"
+    },
+    {
+      "id": "d651e790-2dc2-4522-b876-9f27af71c5f6",
+      "table_name": "installed_plugins",
+      "operation": "INSERT"
+    },
+    {
+      "id": "0b7820da-aceb-442e-9a5d-3fb3fcaa5254",
+      "table_name": "installed_plugins",
+      "operation": "UPDATE"
+    },
+    {
+      "id": "b92a5f03-ac77-4f0e-907a-873c9d2f78bf",
+      "table_name": "installed_plugins
       "operation": "DELETE"
     },
     {
@@ -587,6 +606,10 @@
         "3aa4d2bf-2127-4c66-8858-e9a6b59dbd07",
         "0377daa4-38b3-459d-8715-999532af1cb1",
         "6a4fec4c-a1c3-4d20-8451-c6ecba886a82"
+        "79cd967d-f268-4bb8-9e84-0eafeac3307f",
+        "d651e790-2dc2-4522-b876-9f27af71c5f6",
+        "0b7820da-aceb-442e-9a5d-3fb3fcaa5254",
+        "b92a5f03-ac77-4f0e-907a-873c9d2f78bf"
       ]
     },
     {
@@ -677,6 +700,10 @@
         "51eb3610-a7ee-4fd6-9a71-65214aee0dd7",
         "3aa4d2bf-2127-4c66-8858-e9a6b59dbd07",
         "0377daa4-38b3-459d-8715-999532af1cb1"
+        "79cd967d-f268-4bb8-9e84-0eafeac3307f",
+        "d651e790-2dc2-4522-b876-9f27af71c5f6",
+        "0b7820da-aceb-442e-9a5d-3fb3fcaa5254",
+        "b92a5f03-ac77-4f0e-907a-873c9d2f78bf"
       ]
     },
     {
@@ -717,6 +744,7 @@
         "0377daa4-38b3-459d-8715-999532af1cb1",
         "3aa4d2bf-2127-4c66-8858-e9a6b59dbd07",
         "51eb3610-a7ee-4fd6-9a71-65214aee0dd7"
+        "6ec09042-5dc0-4593-b506-d4c57c3e14cd"
       ]
     },
     {
@@ -734,6 +762,7 @@
         "b716be7a-81b6-4d0a-a55c-a7ca60352ef3",
         "a4b82076-cf7d-4f7a-b24d-f12587d71590",
         "51eb3610-a7ee-4fd6-9a71-65214aee0dd7"
+        "79cd967d-f268-4bb8-9e84-0eafeac3307f"
       ]
     },
     {
@@ -762,6 +791,7 @@
         "a4b82076-cf7d-4f7a-b24d-f12587d71590",
         "51eb3610-a7ee-4fd6-9a71-65214aee0dd7",
         "b716be7a-81b6-4d0a-a55c-a7ca60352ef3"
+        "79cd967d-f268-4bb8-9e84-0eafeac3307f"
       ]
     }
   ],
