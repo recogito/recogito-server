@@ -6,7 +6,7 @@ CREATE POLICY "Users with correct policies can SELECT on targets" ON public.targ
         (public.check_for_private_annotation(auth.uid(), annotation_id) AND (
                 public.check_action_policy_organization(auth.uid(), 'targets', 'SELECT') OR
                 public.check_action_policy_project_from_layer(auth.uid(), 'targets', 'SELECT', layer_id) OR
-                public.check_action_policy_layer(auth.uid(), 'targets', 'SELECT', layer_id)))
+                public.check_action_policy_layer_select(auth.uid(), 'targets', layer_id)))
     );
 
 -- targets can only be placed by the creator of the annotation

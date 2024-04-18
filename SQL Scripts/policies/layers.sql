@@ -5,7 +5,7 @@ CREATE POLICY "Users with correct policies can SELECT on layers" ON public.layer
             is_archived IS FALSE AND
             (public.check_action_policy_organization(auth.uid(), 'layers', 'SELECT') OR
             public.check_action_policy_project(auth.uid(), 'layers', 'SELECT', project_id) OR
-            public.check_action_policy_layer(auth.uid(), 'layers', 'SELECT', id))
+            public.check_action_policy_layer_select(auth.uid(), 'layers', id))
     );
 
 DROP POLICY IF EXISTS "Users with correct policies can INSERT on layers" ON public.layers;
