@@ -966,8 +966,8 @@ BEGIN
     UPDATE public.layer_contexts SET is_active_layer = TRUE WHERE context_id = _context_id;
 
     -- Create the context_documents entry
-    INSERT INTO public.context_documents (context_id, document_id) VALUES (_context_id, _t_row_layer.document_id);
-
+    INSERT INTO public.context_documents (context_id, document_id) VALUES (_context_id, _t_row_layer.document_id) ON CONFLICT DO NOTHING;
+ 
     -- Now create the context_user entry
     -- At this point there should only be the default layer groups with users
     SELECT dg.role_id INTO _default_layer_role_id 
