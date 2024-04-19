@@ -1,7 +1,7 @@
 {
   "project_name": "Default Config",
   "author": "LWJ",
-  "version": "1.9",
+  "version": "1.10",
   "created_at": "1685115972558",
   "policies": [
     {
@@ -744,8 +744,7 @@
         "28a43878-359f-4761-9a45-573fc7b593b1",
         "0377daa4-38b3-459d-8715-999532af1cb1",
         "3aa4d2bf-2127-4c66-8858-e9a6b59dbd07",
-        "51eb3610-a7ee-4fd6-9a71-65214aee0dd7",
-        "6ec09042-5dc0-4593-b506-d4c57c3e14cd"
+        "51eb3610-a7ee-4fd6-9a71-65214aee0dd7"
       ]
     },
     {
