@@ -1,8 +1,10 @@
-CREATE OR REPLACE FUNCTION check_action_policy_layer_from_document(user_id uuid, table_name varchar, operation operation_types,
-                                                     document_id uuid)
-    RETURNS bool
-AS
-$body$
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.check_action_policy_layer_from_document(user_id uuid, table_name character varying, operation operation_types, document_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
   _exists BOOLEAN;
 BEGIN
@@ -21,5 +23,7 @@ BEGIN
 
     RETURN _exists;
 END;
-$body$
-    LANGUAGE plpgsql SECURITY DEFINER;
+$function$
+;
+
+
