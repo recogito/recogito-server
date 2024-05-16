@@ -7,7 +7,7 @@ DECLARE
   _record RECORD;
   _layer_record RECORD;
   _context_id uuid;
-  _layer_group_id uuid;
+  _role_id uuid;
   _project_group_id uuid;
   _id uuid;
 BEGIN
@@ -18,26 +18,21 @@ BEGIN
 
     -- RAISE LOG 'Found default context: %', _context_id; 
 
-    FOR _layer_record IN SELECT * FROM public.layers l
-      INNER JOIN public.layer_contexts lc ON lc.context_id = _context_id AND l.project_id = OLD.id
+    -- Get the layer group
+    SELECT g.role_id INTO _role_id FROM public.default_groups g WHERE g.group_type = 'layer' AND g.is_default = TRUE;
+    -- RAISE LOG 'Found layer_group: %', _layer_group_id; 
+
+    -- Get the project group
+    SELECT pg.id INTO _project_group_id FROM public.project_groups pg WHERE pg.project_id = NEW.id AND is_default IS TRUE;
+    -- RAISE LOG 'Found project_group: %', _project_group_id; 
+
+    -- Add all project members to the default context
+    FOR _record IN SELECT * FROM public.group_users WHERE group_type = 'project' AND type_id = _project_group_id
     LOOP
-
-      -- Get the layer group
-      SELECT lg.id INTO _layer_group_id FROM public.layer_groups lg WHERE lg.layer_id = _layer_record.id and is_default IS TRUE;
-      -- RAISE LOG 'Found layer_group: %', _layer_group_id; 
-
-      -- Get the project group
-      SELECT pg.id INTO _project_group_id FROM public.project_groups pg WHERE pg.project_id = NEW.id AND is_default IS TRUE;
-      -- RAISE LOG 'Found project_group: %', _project_group_id; 
-
-      -- Add all project members to default layer group
-      FOR _record IN SELECT * FROM public.group_users WHERE group_type = 'project' AND type_id = _project_group_id
-      LOOP
-          -- RAISE LOG 'Adding % to layer group', _record.user_id; 
-          INSERT INTO public.group_users (group_type, user_id, type_id)
-          VALUES ('layer',_record.user_id, _layer_group_id);
-      END LOOP; 
-    END LOOP;   
+        -- RAISE LOG 'Adding % to layer group', _record.user_id; 
+        INSERT INTO public.context_users (context_id, user_id, role_id)
+        VALUES (_context_id,_record.user_id, _role_id);
+    END LOOP; 
   END IF;
 
   RETURN NEW;
