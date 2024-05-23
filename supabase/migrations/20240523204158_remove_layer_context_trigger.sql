@@ -1,5 +1,12 @@
-CREATE
-OR REPLACE FUNCTION check_layer_context_for_open_edit () RETURNS TRIGGER AS $$
+drop trigger if exists "on_layer_context_created_check_open_edit" on "public"."layer_contexts";
+
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.check_layer_context_for_open_edit()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
   _project_id uuid;
   _context_name VARCHAR;
@@ -33,4 +40,7 @@ BEGIN
 
   RETURN NEW;
 END
-$$ LANGUAGE PLPGSQL SECURITY DEFINER;
+$function$
+;
+
+
