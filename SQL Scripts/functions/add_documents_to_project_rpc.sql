@@ -10,7 +10,9 @@ DECLARE
     _row public.contexts % rowtype;
 BEGIN
     -- Check project policy that project documents can be updated by this user
-    IF NOT check_action_policy_project(auth.uid(), 'project_documents', 'UPDATE', _project_id) THEN
+    IF NOT (check_action_policy_organization(auth.uid(), 'project_documents', 'UPDATE') 
+        OR check_action_policy_project(auth.uid(), 'project_documents', 'UPDATE', _project_id)) 
+    THEN
         RETURN FALSE;
     END IF; 
 

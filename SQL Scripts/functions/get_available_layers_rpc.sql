@@ -18,8 +18,10 @@ DECLARE
 BEGIN
 
     -- Check project policy that contexts can be updated by this user
-    IF NOT check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id) THEN
-        RETURN NEXT;
+    IF NOT (check_action_policy_organization(auth.uid(), 'contexts', 'UPDATE') 
+      OR check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id)) 
+    THEN
+      RETURN NEXT;
     END IF;  
 
     -- Find all documents in the current context

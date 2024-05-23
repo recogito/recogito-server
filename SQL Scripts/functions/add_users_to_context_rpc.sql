@@ -24,7 +24,9 @@ BEGIN
     END IF;
 
     -- Check project policy that contexts can be updated by this user
-    IF NOT check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id) THEN
+    IF NOT (check_action_policy_organization(auth.uid(), 'contexts', 'UPDATE') 
+      OR check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id)) 
+    THEN
         RETURN FALSE;
     END IF;  
 

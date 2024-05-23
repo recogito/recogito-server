@@ -15,7 +15,9 @@ BEGIN
       WHERE p.id = c.project_id;
 
     -- Check project policy that context documents can be updated by this user
-    IF NOT check_action_policy_project(auth.uid(), 'context_documents', 'UPDATE', _project_id) THEN
+    IF NOT (check_action_policy_organization(auth.uid(), 'context_documents', 'UPDATE') 
+      OR check_action_policy_project(auth.uid(), 'context_documents', 'UPDATE', _project_id)) 
+    THEN
         RETURN FALSE;
     END IF; 
 

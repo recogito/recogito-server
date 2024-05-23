@@ -7,7 +7,9 @@ OR REPLACE FUNCTION create_context_rpc (
 DECLARE
     _context_id uuid;
 BEGIN
-    IF NOT check_action_policy_project(auth.uid(), 'contexts', 'INSERT', _project_id) THEN
+    IF NOT (check_action_policy_organization(auth.uid(), 'contexts', 'INSERT') 
+        OR check_action_policy_project(auth.uid(), 'contexts', 'INSERT', _project_id)) 
+    THEN
         RETURN;
     END IF;    
 
