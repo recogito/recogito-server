@@ -17,9 +17,9 @@ DECLARE
     _layer_row        public.layers % rowtype;      
 BEGIN
 
-    -- Check project policy that contexts can be updated by this user
-    IF NOT (check_action_policy_organization(auth.uid(), 'contexts', 'UPDATE') 
-      OR check_action_policy_project(auth.uid(), 'contexts', 'UPDATE', _project_id)) 
+    -- Check project policy that contexts can be selected by this user
+    IF NOT (check_action_policy_organization(auth.uid(), 'contexts', 'SELECT') 
+      OR check_action_policy_project(auth.uid(), 'contexts', 'SELECT', _project_id)) 
     THEN
       RETURN NEXT;
     END IF;  
