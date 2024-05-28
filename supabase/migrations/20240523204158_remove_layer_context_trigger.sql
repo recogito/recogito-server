@@ -1,5 +1,12 @@
-CREATE
-OR REPLACE FUNCTION check_layer_context_for_open_edit () RETURNS TRIGGER AS $$
+drop trigger if exists "on_layer_context_created_check_open_edit" on "public"."layer_contexts";
+
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.check_layer_context_for_open_edit()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
   _project_id uuid;
   _context_name VARCHAR;
@@ -26,18 +33,14 @@ BEGIN
     -- Add all project members to default context
     FOR _record IN SELECT * FROM public.group_users WHERE group_type = 'project' AND type_id = _project_group_id
     LOOP
-        IF NOT EXISTS
-          (SELECT 1 FROM public.context_users cu 
-          WHERE cu.context_id = NEW.context_id 
-          AND cu.user_id = _record.user_id 
-          AND cu.role_id = _role_id) 
-        THEN
-          INSERT INTO public.context_users (context_id, user_id, role_id)
-          VALUES (NEW.context_id,_record.user_id, _role_id);
-        END IF;
+        INSERT INTO public.context_users (context_id, user_id, role_id)
+        VALUES (NEW.context_id,_record.user_id, _role_id);
     END LOOP; 
   END IF;
 
   RETURN NEW;
 END
-$$ LANGUAGE PLPGSQL SECURITY DEFINER;
+$function$
+;
+
+

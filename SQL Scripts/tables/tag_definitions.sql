@@ -12,7 +12,7 @@ CREATE TABLE tag_definitions
     updated_by  uuid REFERENCES public.profiles,
     is_archived bool                     DEFAULT FALSE,
     name        varchar         NOT NULL,
-    target_type tag_scope_types NOT NULL,
+    target_type tag_target_types NOT NULL,
     scope       tag_scope_types NOT NULL,
     scope_id    uuid
 );

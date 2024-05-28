@@ -99,5 +99,4 @@ CREATE POLICY "Users with correct policies can DELETE on documents" ON public.do
         AND public.check_action_policy_organization (auth.uid (), 'documents', 'DELETE')
     )
     OR public.check_action_policy_project_from_document (auth.uid (), 'documents', 'DELETE', id)
-    OR public.check_action_policy_layer_from_document (auth.uid (), 'documents', 'DELETE', id)
 );
