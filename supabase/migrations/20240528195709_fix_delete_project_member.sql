@@ -1,9 +1,10 @@
+set check_function_bodies = off;
 
-CREATE
-OR REPLACE FUNCTION remove_user_from_project_rpc (
-    _project_id uuid,
-    _user_id uuid 
-) RETURNS BOOLEAN AS $body$
+CREATE OR REPLACE FUNCTION public.remove_user_from_project_rpc(_project_id uuid, _user_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
     _project_group_id uuid;
     _context_id uuid;
@@ -34,4 +35,7 @@ BEGIN
 
     RETURN TRUE;
 END
-$body$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$
+;
+
+
