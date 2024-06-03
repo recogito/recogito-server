@@ -1,8 +1,10 @@
-CREATE
-OR REPLACE FUNCTION add_documents_to_project_rpc (
-    _project_id uuid,
-    _document_ids uuid[] 
-) RETURNS BOOLEAN AS $body$
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.add_documents_to_project_rpc(_project_id uuid, _document_ids uuid[])
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
     _context_id uuid;
     _layer_id uuid;
@@ -72,4 +74,7 @@ BEGIN
 
     RETURN TRUE;
 END
-$body$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$
+;
+
+
