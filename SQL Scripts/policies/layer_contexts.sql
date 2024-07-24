@@ -5,7 +5,7 @@ CREATE POLICY "Users with correct policies can SELECT on layer_contexts" ON publ
         is_archived IS FALSE AND (
             public.check_action_policy_organization(auth.uid(), 'layer_contexts', 'SELECT') OR
             public.check_action_policy_project_from_context(auth.uid(), 'layer_contexts', 'SELECT', context_id) OR
-            public.check_action_policy_layer(auth.uid(), 'layer_contexts', 'SELECT', layer_id)
+            public.check_action_policy_layer_select(auth.uid(), 'layer_contexts', layer_id)
         )
     );
 
