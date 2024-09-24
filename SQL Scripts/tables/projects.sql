@@ -9,7 +9,8 @@ CREATE TABLE
         NAME VARCHAR,
         description VARCHAR,
         is_open_join BOOLEAN DEFAULT FALSE,
-        is_open_edit BOOLEAN DEFAULT FALSE
+        is_open_edit BOOLEAN DEFAULT FALSE,
+        is_locked    BOOLEAN DEFAULT FALSE
     );
 
 -- Changes 04/21/23 --
@@ -34,3 +35,7 @@ ADD COLUMN is_open_join BOOLEAN DEFAULT FALSE;
 
 ALTER TABLE public.projects
 ADD COLUMN is_open_edit BOOLEAN DEFAULT FALSE;
+
+-- Changes 9/20/24
+ALTER TABLE public.projects
+ADD COLUMN is_locked BOOLEAN DEFAULT FALSE;
