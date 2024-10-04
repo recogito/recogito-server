@@ -91,6 +91,7 @@ const main = async (options) => {
       description: orgGroup.description,
       is_admin: orgGroup.is_admin,
       is_default: orgGroup.is_default,
+      is_read_only: orgGroup.is_read_only
     });
   });
 
@@ -104,6 +105,8 @@ const main = async (options) => {
   const orgAdminGroup = organizationGroupInserts.find(
     (g) => g.is_admin === true
   );
+
+  console.log('Org group: ', orgAdminGroup)
 
   const getOrgAdminResponse = await supabase
     .from('organization_groups')
@@ -195,6 +198,7 @@ const main = async (options) => {
       role_id: group.role_id,
       is_admin: group.is_admin,
       is_default: group.is_default,
+      is_read_only: group.is_read_only
     });
   });
   config.layer_groups.forEach((group) => {
@@ -206,6 +210,7 @@ const main = async (options) => {
       role_id: group.role_id,
       is_admin: group.is_admin,
       is_default: group.is_default,
+      is_read_only: group.is_read_only
     });
   });
 

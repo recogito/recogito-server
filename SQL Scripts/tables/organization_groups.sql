@@ -9,7 +9,8 @@ CREATE TABLE public .organization_groups (
   description VARCHAR,
   role_id UUID REFERENCES public .roles UNIQUE NOT NULL,
   is_admin BOOLEAN DEFAULT FALSE,
-  is_default BOOLEAN DEFAULT FALSE
+  is_default BOOLEAN DEFAULT FALSE,
+  is_read_only BOOLEAN DEFAULT FALSE
 );
 -- Changes 05/08/23
 ALTER TABLE public .organization_groups
@@ -40,3 +41,7 @@ ADD COLUMN is_admin bool DEFAULT FALSE;
 -- Changes 11/27/23 --
 ALTER TABLE public .organization_groups
 ADD COLUMN is_default bool DEFAULT FALSE;
+
+-- Changes 9/23/24 --
+ALTER TABLE public.organization_groups
+ADD COLUMN is_read_only bool DEFAULT FALSE;
