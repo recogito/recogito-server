@@ -13,7 +13,8 @@ CREATE TABLE public.default_groups
     description varchar                      NOT NULL,
     role_id     uuid REFERENCES public.roles NOT NULL,
     is_admin    bool                                  DEFAULT FALSE,
-    is_default  bool                                  DEFAULT FALSE
+    is_default  bool                                  DEFAULT FALSE,
+    is_read_only  bool                                DEFAULT FALSE
 );
 
 -- Changes 6/6/23 --
@@ -25,3 +26,7 @@ ALTER TABLE public.default_groups
 -- Changes 7/26/23 --
 ALTER TABLE public.default_groups
     ADD COLUMN is_archived bool DEFAULT FALSE;
+
+-- Changes 9/20/24 --
+ALTER TABLE public.default_groups
+    ADD COLUMN is_read_only bool DEFAULT FALSE;

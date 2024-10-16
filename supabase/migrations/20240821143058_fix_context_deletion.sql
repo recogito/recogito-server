@@ -1,3 +1,5 @@
+set check_function_bodies = off;
+
 CREATE
 OR REPLACE FUNCTION archive_context_rpc (
     _context_id uuid
