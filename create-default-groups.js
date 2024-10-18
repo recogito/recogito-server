@@ -196,9 +196,9 @@ const main = async (options) => {
       name: group.name,
       description: group.description,
       role_id: group.role_id,
-      is_admin: group.is_admin,
-      is_default: group.is_default,
-      is_read_only: group.is_read_only
+      is_admin: !!group.is_admin,
+      is_default: !!group.is_default,
+      is_read_only: !!group.is_read_only
     });
   });
   config.layer_groups.forEach((group) => {
@@ -208,9 +208,9 @@ const main = async (options) => {
       name: group.name,
       description: group.description,
       role_id: group.role_id,
-      is_admin: group.is_admin,
-      is_default: group.is_default,
-      is_read_only: group.is_read_only
+      is_admin: !!group.is_admin,
+      is_default: !!group.is_default,
+      is_read_only: !!group.is_read_only
     });
   });
 
