@@ -1,3 +1,7 @@
+create type "public".document_view_type as enum ('closed', 'annotations', 'notes');
+
+alter table "public"."projects" add column "document_view_right" document_view_type default 'closed';
+
 CREATE
     OR REPLACE FUNCTION create_project_rpc (
     _name VARCHAR,
