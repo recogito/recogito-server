@@ -14,7 +14,8 @@ CREATE TABLE tag_definitions
     name        varchar         NOT NULL,
     target_type tag_target_types NOT NULL,
     scope       tag_scope_types NOT NULL,
-    scope_id    uuid
+    scope_id    uuid,
+    metadata    json            NOT NULL    DEFAULT {}
 );
 
 -- Changes 05/26/23 --
@@ -26,3 +27,7 @@ ALTER TABLE public.tag_definitions
 -- Changes 7/26/23 --
 ALTER TABLE public.tag_definitions
     ADD COLUMN is_archived bool DEFAULT FALSE;
+
+-- Changes 10/24/24
+ALTER TABLE public.tag_definitions
+    ADD COLUMN metadata json NOT NULL DEFAULT '{}';
