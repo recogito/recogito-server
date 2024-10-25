@@ -20,9 +20,9 @@ BEGIN
         LOOP
 
             UPDATE public.project_documents pd
-            SET sort = _current_index
-            WHERE pd.document_id = _document_id
-              AND pd.project_id = _project_id;
+               SET sort = _current_index
+             WHERE pd.document_id = _document_id
+               AND pd.project_id = _project_id;
 
             _current_index :=  _current_index + 1;
 
