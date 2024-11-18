@@ -1,5 +1,5 @@
 -- tag_definitions table --
-CREATE TYPE tag_scope_types AS ENUM ('system', 'organization', 'project');
+CREATE TYPE tag_scope_types AS ENUM ('system', 'organization', 'project', 'user');
 
 CREATE TYPE tag_target_types AS ENUM ('project', 'group', 'document', 'context', 'layer', 'profile');
 
@@ -31,3 +31,9 @@ ALTER TABLE public.tag_definitions
 -- Changes 10/24/24
 ALTER TABLE public.tag_definitions
     ADD COLUMN metadata json NOT NULL DEFAULT '{}';
+
+-- Changes 11/8/24
+ALTER TYPE tag_scope_types ADD VALUE IF NOT EXISTS 'user' AFTER 'project';
+
+ALTER TABLE public.tag_definitions
+    ALTER COLUMN scope TYPE tag_scope_types USING (scope::tag_scope_types);
