@@ -1,7 +1,10 @@
-CREATE
-OR REPLACE FUNCTION archive_document_rpc (
-    _document_id uuid 
-) RETURNS BOOLEAN AS $body$
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.archive_document_rpc(_document_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
     _row public.documents % rowtype;
 BEGIN
@@ -29,4 +32,7 @@ BEGIN
 
     RETURN FALSE;    
 END
-$body$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$
+;
+
+
