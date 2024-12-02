@@ -41,3 +41,7 @@ ADD COLUMN description VARCHAR;
 -- Changes 1/25/24 --
 ALTER TABLE public.contexts
 ADD COLUMN is_project_default BOOLEAN DEFAULT FALSE;
+
+-- Changes 11/26/24
+ALTER TABLE public.contexts
+ADD COLUMN assign_all_members BOOLEAN DEFAULT FALSE;
