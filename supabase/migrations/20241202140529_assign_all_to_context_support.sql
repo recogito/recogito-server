@@ -1,7 +1,5 @@
 alter table "public"."contexts" add column "assign_all_members" boolean default false;
 
-alter table "public"."project_documents" add column "sort" integer default 0;
-
 set check_function_bodies = off;
 
 CREATE OR REPLACE FUNCTION public.do_assign_all_check_for_user(_project_id uuid, _user_id uuid)
