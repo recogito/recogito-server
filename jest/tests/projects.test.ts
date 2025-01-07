@@ -953,7 +953,7 @@ async function processInvite(
     }
   }
 
-  // console.log("Invite Error: ", result.error);
+  console.log('Invite Error: ', result.error);
 
   return false;
 }

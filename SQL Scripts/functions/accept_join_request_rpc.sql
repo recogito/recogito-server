@@ -29,6 +29,9 @@ BEGIN
     -- Delete the request
     DELETE FROM public.join_requests WHERE id = _request_id;
 
+    -- Check for assign_all contexts
+    PERFORM do_assign_all_check_for_user(_project_id, _request.user_id);
+
     RETURN TRUE;
 END
 $body$ LANGUAGE plpgsql SECURITY DEFINER;
