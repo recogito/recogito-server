@@ -28,7 +28,8 @@ SELECT documents.id AS document_id,
        )) AS meta
   FROM public.documents
  CROSS JOIN json_each_text(documents.meta_data->'meta') AS x
- WHERE x.value IS NOT NULL
+ WHERE json_typeof(documents.meta_data->'meta') = 'object'
+   AND x.value IS NOT NULL
    AND x.value != ''
  GROUP BY documents.id
 ),
