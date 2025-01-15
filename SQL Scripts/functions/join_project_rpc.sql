@@ -2,6 +2,7 @@ CREATE
 OR REPLACE FUNCTION join_project_rpc (_project_id UUID) RETURNS BOOLEAN AS $body$
 DECLARE
   _is_open_join BOOLEAN;
+  _context BOOLEAN;
   _project_group_id uuid;
 BEGIN
 
@@ -19,6 +20,9 @@ BEGIN
       (group_type, user_id, type_id)
       VALUES 
       ('project', auth.uid(), _project_group_id);
+
+    -- Check for assign_all contexts
+    PERFORM do_assign_all_check_for_user(_project_id, auth.uid());
 
     RETURN TRUE;
 END
