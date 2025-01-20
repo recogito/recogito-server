@@ -1,9 +1,10 @@
+set check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.check_archive_project()
-    RETURNS trigger
-    LANGUAGE plpgsql
-    SECURITY DEFINER
-AS
-$$
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 BEGIN
     IF NEW.is_archived IS TRUE THEN
         UPDATE public.contexts AS c SET is_archived = TRUE WHERE c.project_id = OLD.id;
@@ -14,5 +15,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$
+$function$
 ;
+
+
