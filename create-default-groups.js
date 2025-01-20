@@ -216,7 +216,7 @@ const main = async (options) => {
 
   const defaultGroupsResponse = await supabase
     .from('default_groups')
-    .upsert(defaultGroups, { ignoreDuplicates: false })
+    .upsert(defaultGroups, { ignoreDuplicates: false, onConflict: 'id' })
     .select();
   if (defaultGroupsResponse.error) {
     console.error('Failed to create default_groups');
