@@ -29,9 +29,14 @@ BEGIN
     -- Add all project members to the default context
     FOR _record IN SELECT * FROM public.group_users WHERE group_type = 'project' AND type_id = _project_group_id
     LOOP
-        -- RAISE LOG 'Adding % to layer group', _record.user_id; 
-        INSERT INTO public.context_users (context_id, user_id, role_id)
-        VALUES (_context_id,_record.user_id, _role_id);
+        IF NOT EXISTS(SELECT 1 FROM public.context_users cu 
+          WHERE cu.context_id = _context_id 
+          AND cu.user_id = _record.user_id 
+          AND cu.role_id = _role_id) THEN
+            -- RAISE LOG 'Adding % to layer group', _record.user_id; 
+            INSERT INTO public.context_users (context_id, user_id, role_id)
+            VALUES (_context_id,_record.user_id, _role_id);
+        END IF
     END LOOP; 
   END IF;
 
