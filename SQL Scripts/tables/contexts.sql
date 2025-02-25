@@ -11,6 +11,7 @@ CREATE TABLE
         description VARCHAR,
         project_id UUID REFERENCES public.projects,
         is_project_default BOOLEAN DEFAULT FALSE,
+        assign_all_members BOOLEAN DEFAULT FALSE
     );
 
 -- Changes 04/18/23 --
@@ -45,3 +46,7 @@ ADD COLUMN is_project_default BOOLEAN DEFAULT FALSE;
 -- Changes 11/26/24
 ALTER TABLE public.contexts
 ADD COLUMN assign_all_members BOOLEAN DEFAULT FALSE;
+
+-- Changes 2/17/25
+ALTER TABLE public.contexts 
+ADD COLUMN sort INTEGER DEFAULT 0;
