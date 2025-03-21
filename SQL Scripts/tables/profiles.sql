@@ -14,7 +14,9 @@ CREATE TABLE public.profiles
     email       varchar,
     nickname    varchar,
     avatar_url  varchar,
-    gdpr_optin  boolean                  DEFAULT FALSE
+    gdpr_optin  boolean                  DEFAULT FALSE,
+    is_archived bool                     DEFAULT FALSE,
+    accepted_eula BOOLEAN                DEFAULT FALSE
 );
 
 -- Change 04/05/2023
@@ -32,3 +34,7 @@ ALTER TABLE public.profiles
 -- Changes 7/26/23 --
 ALTER TABLE public.profiles
     ADD COLUMN is_archived bool DEFAULT FALSE;
+
+-- Changes 2/20/25--
+ALTER TABLE public.profiles
+    ADD COLUMN accepted_eula bool DEFAULT FALSE;    
