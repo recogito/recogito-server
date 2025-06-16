@@ -1,7 +1,7 @@
 {
   "project_name": "Default Config",
   "author": "LWJ",
-  "version": "1.13",
+  "version": "1.14",
   "created_at": "1685115972558",
   "policies": [
     {
@@ -523,6 +523,26 @@
       "id": "9a7fb2a1-9ccb-4071-8ec9-b90fcf1eb546",
       "table_name": "targets",
       "operation": "DELETE"
+    },
+    {
+      "id": "a6107b81-5f87-4092-908f-f917f546663b",
+      "table_name": "notifications",
+      "operation": "SELECT"
+    },
+    {
+      "id": "74bac033-6485-4851-af27-563421464c89",
+      "table_name": "notifications",
+      "operation": "INSERT"
+    },
+    {
+      "id": "cf269ac0-0228-4930-a4df-1737363abadf",
+      "table_name": "notifications",
+      "operation": "UPDATE"
+    },
+    {
+      "id": "0d2be6e9-5f8d-4891-b66c-91dd835778d0",
+      "table_name": "notifications",
+      "operation": "DELETE"
     }
   ],
   "roles": [
@@ -634,7 +654,11 @@
         "bebfe10f-5316-4ef0-8059-80050515ec5c",
         "9b85eef3-e174-4fbe-81e6-7f1d26adf748",
         "db0d70e3-7477-4926-bfc5-abc738149856",
-        "a5cc4271-bde2-4f6e-bd96-97fe790ab5ea"
+        "a5cc4271-bde2-4f6e-bd96-97fe790ab5ea",
+        "a6107b81-5f87-4092-908f-f917f546663b",
+        "74bac033-6485-4851-af27-563421464c89",
+        "cf269ac0-0228-4930-a4df-1737363abadf",
+        "0d2be6e9-5f8d-4891-b66c-91dd835778d0"
       ]
     },
     {
@@ -651,7 +675,8 @@
         "7e830a72-19ac-4486-87a7-ca697f430fca",
         "2cb6d98c-14d8-44bd-a977-1ca1116fc44f",
         "b508e4ca-46bd-478c-9582-fa1c671aa03e",
-        "50c00273-d524-4d60-a9af-050d1cff51a3"
+        "50c00273-d524-4d60-a9af-050d1cff51a3",
+        "a6107b81-5f87-4092-908f-f917f546663b"
       ]
     },
     {
@@ -663,7 +688,8 @@
         "dbeae20d-f490-45f6-9de8-315e5f88b9a6",
         "2cb6d98c-14d8-44bd-a977-1ca1116fc44f",
         "7e830a72-19ac-4486-87a7-ca697f430fca",
-        "50c00273-d524-4d60-a9af-050d1cff51a3"
+        "50c00273-d524-4d60-a9af-050d1cff51a3",
+        "a6107b81-5f87-4092-908f-f917f546663b"
       ]
     },
     {

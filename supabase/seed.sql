@@ -109,7 +109,11 @@ VALUES
     ('bebfe10f-5316-4ef0-8059-80050515ec5c', 'join_requests', 'SELECT'),
     ('9b85eef3-e174-4fbe-81e6-7f1d26adf748', 'join_requests', 'INSERT'),
     ('db0d70e3-7477-4926-bfc5-abc738149856', 'join_requests', 'UPDATE'),
-    ('a5cc4271-bde2-4f6e-bd96-97fe790ab5ea', 'join_requests', 'DELETE');
+    ('a5cc4271-bde2-4f6e-bd96-97fe790ab5ea', 'join_requests', 'DELETE'),
+    ('a6107b81-5f87-4092-908f-f917f546663b', 'notifications', 'SELECT'),
+    ('74bac033-6485-4851-af27-563421464c89', 'notifications', 'INSERT'),
+    ('cf269ac0-0228-4930-a4df-1737363abadf', 'notifications', 'UPDATE'),
+    ('0d2be6e9-5f8d-4891-b66c-91dd835778d0', 'notifications', 'DELETE');
 
 ALTER TABLE public.role_policies
 ADD CONSTRAINT role_policies_policy_id_fkey FOREIGN KEY (policy_id) REFERENCES public.policies (id);
