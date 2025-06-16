@@ -15,6 +15,8 @@ create table "public"."notifications" (
 );
 
 
+alter table "public"."notifications" enable row level security;
+
 CREATE INDEX notifications_by_target_user ON public.notifications USING btree (target_user_id);
 
 CREATE UNIQUE INDEX notifications_pkey ON public.notifications USING btree (id);
