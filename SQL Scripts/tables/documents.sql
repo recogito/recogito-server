@@ -15,7 +15,9 @@ CREATE TABLE public.documents
     meta_data    json DEFAULT {},
     is_private   BOOLEAN DEFAULT TRUE,
     collection_id uuid REFERENCES public.collections,
-    collection_metadata json
+    collection_metadata json,
+    is_document_group bool DEFAULT FALSE, 
+    document_group_id uuid
 );
 
 -- Changes 5/24/23 --
@@ -44,3 +46,8 @@ ALTER TABLE public.documents ADD COLUMN is_private BOOLEAN DEFAULT true;
 ALTER TABLE public.documents ADD COLUMN collection_id uuid REFERENCES public.collections;
 
 ALTER TABLE public.documents ADD COLUMN collection_metadata json;
+
+-- Changes 05/29/25 --
+ALTER TABLE public.documents ADD COLUMN is_document_group BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE public.documents ADD COLUMN document_group_id uuid; 
