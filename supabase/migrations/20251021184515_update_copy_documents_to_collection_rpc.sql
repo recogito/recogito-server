@@ -1,17 +1,14 @@
-CREATE OR REPLACE FUNCTION copy_documents_to_collection_rpc(
-    _collection_id uuid,
-    _document_ids uuid[]
-)
-RETURNS TABLE (
-    original_document_id uuid,
-    id uuid,
-    collection_id uuid,
-    name varchar,
-    bucket_id text,
-    content_type content_types_type,
-    collection_metadata json
-)
-AS $body$
+set check_function_bodies = off;
+
+-- drop original function because it has a different signature (3 arguments)
+DROP FUNCTION IF EXISTS public.copy_documents_to_collection_rpc(_collection_id uuid, _document_ids uuid[], _collection_metadata json);
+
+-- create new one with only 2 arguments
+CREATE OR REPLACE FUNCTION public.copy_documents_to_collection_rpc(_collection_id uuid, _document_ids uuid[])
+ RETURNS TABLE(original_document_id uuid, id uuid, collection_id uuid, name character varying, bucket_id text, content_type content_types_type, collection_metadata json)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 BEGIN
     RETURN QUERY
     WITH original_documents AS (
@@ -63,4 +60,6 @@ BEGIN
         od.new_collection_metadata
     FROM original_documents od;
 END 
-$body$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$
+;
+
