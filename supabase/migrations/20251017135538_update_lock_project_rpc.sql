@@ -1,8 +1,10 @@
-CREATE
-OR REPLACE FUNCTION lock_project_rpc (
-  _project_id uuid
-) RETURNS BOOLEAN 
-AS $body$
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.lock_project_rpc(_project_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
   _project_read_only_group_id uuid;
   _project_group_ids uuid[];
@@ -100,4 +102,5 @@ BEGIN
   RETURN TRUE;
 
 END
-$body$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$
+;
