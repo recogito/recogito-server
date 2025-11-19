@@ -1,0 +1,1 @@
+CREATE TRIGGER on_job_created BEFORE INSERT ON public.jobs FOR EACH ROW EXECUTE FUNCTION create_dates_and_user();
