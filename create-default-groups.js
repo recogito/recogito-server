@@ -300,11 +300,20 @@ const main = async (options) => {
   }
 
   // Make sure we have a 'documents' bucket
-  const bucketResp = await supabase.storage.getBucket('documents');
+  const documentsBucketResp = await supabase.storage.getBucket('documents');
 
-  if (bucketResp.error || bucketResp.data.length === 0) {
+  if (documentsBucketResp.error || documentsBucketResp.data.length === 0) {
     const { data, error } = await supabase.storage.createBucket('documents', {
-      public: false,
+      public: false
+    });
+  }
+
+  // Make sure we have a 'jobs' bucket
+  const jobsBucketResp = await supabase.storage.getBucket('jobs');
+
+  if (jobsBucketResp.error || jobsBucketResp.data.length === 0) {
+    const { data, error } = await supabase.storage.createBucket('jobs', {
+      public: false
     });
   }
 

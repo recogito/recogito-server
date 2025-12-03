@@ -1,13 +1,14 @@
 CREATE TABLE public.layer_contexts
 (
-    id          uuid                                              NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
-    created_at  timestamp WITH TIME ZONE                                   DEFAULT NOW(),
-    created_by  uuid REFERENCES public.profiles,
-    updated_at  timestamptz,
-    updated_by  uuid REFERENCES public.profiles,
-    is_archived bool                                                       DEFAULT FALSE,
-    layer_id    uuid REFERENCES public.layers ON DELETE CASCADE   NOT NULL,
-    context_id  uuid REFERENCES public.contexts ON DELETE CASCADE NOT NULL
+    id              uuid                                              NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_at      timestamp WITH TIME ZONE                                   DEFAULT NOW(),
+    created_by      uuid REFERENCES public.profiles,
+    updated_at      timestamptz,
+    updated_by      uuid REFERENCES public.profiles,
+    is_archived     bool                                                       DEFAULT FALSE,
+    layer_id        uuid REFERENCES public.layers ON DELETE CASCADE   NOT NULL,
+    context_id      uuid REFERENCES public.contexts ON DELETE CASCADE NOT NULL,
+    is_active_layer bool DEFAULT FALSE
 );
 
 -- Changes 6/9/23 --

@@ -11,7 +11,8 @@ CREATE TABLE
         description VARCHAR,
         project_id UUID REFERENCES public.projects,
         is_project_default BOOLEAN DEFAULT FALSE,
-        assign_all_members BOOLEAN DEFAULT FALSE
+        assign_all_members BOOLEAN DEFAULT FALSE,
+        sort integer DEFAULT 0
     );
 
 -- Changes 04/18/23 --

@@ -1,6 +1,6 @@
 create type "public"."job_statuses" as enum ('INITIALIZING', 'PROCESSING', 'COMPLETE', 'ERROR');
 
-create type "public"."job_types" as enum ('EXPORT');
+create type "public"."job_types" as enum ('EXPORT', 'IMPORT');
 
 create table "public"."jobs" (
     "id" uuid NOT NULL default uuid_generate_v4(),
