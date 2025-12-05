@@ -17,9 +17,16 @@ BEGIN
 
     -- Update the ID for imported profiles records to preserve users that already exist
     UPDATE z_profiles
-       SET is_new = FALSE
+       SET is_new = FALSE,
+           new_id = public.profiles.id
       FROM public.profiles
-     WHERE public.profiles.id = z_profiles.legacy_id
+     WHERE public.profiles.email = z_profiles.email
+       AND z_profiles.import_id = _import_id
+    ;
+
+    UPDATE z_profiles
+       SET new_id = z_profiles.id
+     WHERE z_profiles.is_new IS TRUE
        AND z_profiles.import_id = _import_id
     ;
 
@@ -33,19 +40,17 @@ BEGIN
     ;
 
     UPDATE z_annotations
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_annotations.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_annotations.import_id = _import_id
     ;
 
     UPDATE z_annotations
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_annotations.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_annotations.import_id = _import_id
     ;
@@ -68,19 +73,17 @@ BEGIN
     ;
 
     UPDATE z_bodies
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_bodies.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_bodies.import_id = _import_id
     ;
 
     UPDATE z_bodies
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_bodies.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_bodies.import_id = _import_id
     ;
@@ -98,25 +101,22 @@ BEGIN
        SET document_id = z_documents.id
       FROM z_documents
      WHERE z_documents.legacy_id = z_context_documents.document_id
-       AND z_documents.is_new = TRUE
        AND z_documents.import_id = _import_id
        AND z_context_documents.import_id = _import_id
     ;
 
     UPDATE z_context_documents
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_context_documents.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_context_documents.import_id = _import_id
     ;
 
     UPDATE z_context_documents
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_context_documents.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_context_documents.import_id = _import_id
     ;
@@ -131,19 +131,25 @@ BEGIN
     ;
 
     UPDATE z_context_users
-       SET created_by = z_profiles.id
+       SET user_id = z_profiles.new_id
       FROM z_profiles
-     WHERE z_profiles.legacy_id = z_context_users.created_by
-       AND z_profiles.is_new = TRUE
+     WHERE z_profiles.legacy_id = z_context_users.user_id
        AND z_profiles.import_id = _import_id
        AND z_context_users.import_id = _import_id
     ;
 
     UPDATE z_context_users
-       SET updated_by = z_profiles.id
+       SET created_by = z_profiles.new_id
+      FROM z_profiles
+     WHERE z_profiles.legacy_id = z_context_users.created_by
+       AND z_profiles.import_id = _import_id
+       AND z_context_users.import_id = _import_id
+    ;
+
+    UPDATE z_context_users
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_context_users.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_context_users.import_id = _import_id
     ;
@@ -159,19 +165,17 @@ BEGIN
 
     -- z_documents
     UPDATE z_documents
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_documents.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_documents.import_id = _import_id
     ;
 
     UPDATE z_documents
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_documents.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_documents.import_id = _import_id
     ;
@@ -187,28 +191,25 @@ BEGIN
     ;
 
     UPDATE z_group_users
-       SET user_id = z_profiles.id
+       SET user_id = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_group_users.user_id
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_group_users.import_id = _import_id
     ;
 
     UPDATE z_group_users
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_group_users.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_group_users.import_id = _import_id
     ;
 
     UPDATE z_group_users
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_group_users.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_group_users.import_id = _import_id
     ;
@@ -231,19 +232,17 @@ BEGIN
     ;
 
     UPDATE z_layer_contexts
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_layer_contexts.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_layer_contexts.import_id = _import_id
     ;
 
     UPDATE z_layer_contexts
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_layer_contexts.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_layer_contexts.import_id = _import_id
     ;
@@ -258,19 +257,17 @@ BEGIN
     ;
 
     UPDATE z_layer_groups
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_layer_groups.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_layer_groups.import_id = _import_id
     ;
 
     UPDATE z_layer_groups
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_layer_groups.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_layer_groups.import_id = _import_id
     ;
@@ -280,7 +277,6 @@ BEGIN
        SET document_id = z_documents.id
       FROM z_documents
      WHERE z_documents.legacy_id = z_layers.document_id
-       AND z_documents.is_new = TRUE
        AND z_documents.import_id = _import_id
        AND z_layers.import_id = _import_id
     ;
@@ -294,19 +290,17 @@ BEGIN
     ;
 
     UPDATE z_layers
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_layers.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_layers.import_id = _import_id
     ;
 
     UPDATE z_layers
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_layers.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_layers.import_id = _import_id
     ;
@@ -325,25 +319,22 @@ BEGIN
        SET document_id = z_documents.id
       FROM z_documents
      WHERE z_documents.legacy_id = z_project_documents.document_id
-       AND z_documents.is_new = TRUE
        AND z_documents.import_id = _import_id
        AND z_project_documents.import_id = _import_id
     ;
 
     UPDATE z_project_documents
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_project_documents.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_project_documents.import_id = _import_id
     ;
 
     UPDATE z_project_documents
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_project_documents.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_project_documents.import_id = _import_id
     ;
@@ -358,63 +349,57 @@ BEGIN
     ;
 
     UPDATE z_project_groups
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_project_groups.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_project_groups.import_id = _import_id
     ;
 
     UPDATE z_project_groups
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_project_groups.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_project_groups.import_id = _import_id
     ;
 
     -- z_projects
     UPDATE z_projects
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_projects.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_projects.import_id = _import_id
     ;
 
     UPDATE z_projects
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_projects.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_projects.import_id = _import_id
     ;
 
     -- z_tag_definitions
     UPDATE z_tag_definitions
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_tag_definitions.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_tag_definitions.import_id = _import_id
     ;
 
     UPDATE z_tag_definitions
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_tag_definitions.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_tag_definitions.import_id = _import_id
     ;
 
     UPDATE z_tag_definitions
-       SET scope_id = z_profiles.id
+       SET scope_id = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_tag_definitions.scope_id
        AND z_profiles.import_id = _import_id
@@ -440,19 +425,17 @@ BEGIN
     ;
 
     UPDATE z_tags
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_tags.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_tags.import_id = _import_id
     ;
 
     UPDATE z_tags
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_tags.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_tags.import_id = _import_id
     ;
@@ -475,19 +458,17 @@ BEGIN
     ;
 
     UPDATE z_targets
-       SET created_by = z_profiles.id
+       SET created_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_targets.created_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_targets.import_id = _import_id
     ;
 
     UPDATE z_targets
-       SET updated_by = z_profiles.id
+       SET updated_by = z_profiles.new_id
       FROM z_profiles
      WHERE z_profiles.legacy_id = z_targets.updated_by
-       AND z_profiles.is_new = TRUE
        AND z_profiles.import_id = _import_id
        AND z_targets.import_id = _import_id
     ;

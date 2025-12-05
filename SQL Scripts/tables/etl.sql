@@ -244,7 +244,8 @@ CREATE TABLE etl.z_profiles (
     accepted_eula bool DEFAULT FALSE,
     role etl.z_profile_role_types DEFAULT 'base_user',
     import_id uuid NOT NULL,
-    is_new bool DEFAULT TRUE
+    is_new bool DEFAULT TRUE,
+    new_id uuid
 );
 
 CREATE INDEX z_profiles_import_id_idx ON etl.z_profiles USING btree (import_id);

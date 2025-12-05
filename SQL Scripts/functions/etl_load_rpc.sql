@@ -7,8 +7,44 @@ BEGIN
         RETURN FALSE;
     END IF;
 
+    -- profiles
+    INSERT INTO public.profiles (
+        id,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by,
+        first_name,
+        last_name,
+        email,
+        nickname,
+        avatar_url,
+        gdpr_optin,
+        is_archived,
+        accepted_eula,
+        role
+    )
+    SELECT
+        id,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by,
+        first_name,
+        last_name,
+        email,
+        nickname,
+        avatar_url,
+        gdpr_optin,
+        is_archived,
+        accepted_eula,
+        role::varchar::public.profile_role_types
+      FROM z_profiles
+     WHERE z_profiles.import_id = _import_id
+       AND z_profiles.is_new IS TRUE
+    ;
+
     -- documents
-    -- TODO: Describe special use case here
     INSERT INTO public.documents (
         id,
         created_at,
@@ -45,44 +81,6 @@ BEGIN
       FROM z_documents
      WHERE z_documents.import_id = _import_id
        AND z_documents.is_new IS TRUE
-    ;
-
-    -- profiles
-    -- TODO: Describe special case for profiles
-    INSERT INTO public.profiles (
-        id,
-        created_at,
-        created_by,
-        updated_at,
-        updated_by,
-        first_name,
-        last_name,
-        email,
-        nickname,
-        avatar_url,
-        gdpr_optin,
-        is_archived,
-        accepted_eula,
-        role
-    )
-    SELECT
-        id,
-        created_at,
-        created_by,
-        updated_at,
-        updated_by,
-        first_name,
-        last_name,
-        email,
-        nickname,
-        avatar_url,
-        gdpr_optin,
-        is_archived,
-        accepted_eula,
-        role::varchar::public.profile_role_types
-      FROM z_profiles
-     WHERE z_profiles.import_id = _import_id
-       AND z_profiles.is_new IS TRUE
     ;
 
     -- projects
