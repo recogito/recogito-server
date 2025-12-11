@@ -101,6 +101,7 @@ BEGIN
        SET document_id = z_documents.id
       FROM z_documents
      WHERE z_documents.legacy_id = z_context_documents.document_id
+       AND z_documents.is_new IS TRUE
        AND z_documents.import_id = _import_id
        AND z_context_documents.import_id = _import_id
     ;
@@ -277,6 +278,7 @@ BEGIN
        SET document_id = z_documents.id
       FROM z_documents
      WHERE z_documents.legacy_id = z_layers.document_id
+       AND z_documents.is_new IS TRUE
        AND z_documents.import_id = _import_id
        AND z_layers.import_id = _import_id
     ;
@@ -319,6 +321,7 @@ BEGIN
        SET document_id = z_documents.id
       FROM z_documents
      WHERE z_documents.legacy_id = z_project_documents.document_id
+       AND z_documents.is_new IS TRUE
        AND z_documents.import_id = _import_id
        AND z_project_documents.import_id = _import_id
     ;
