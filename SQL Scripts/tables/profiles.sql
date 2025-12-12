@@ -1,5 +1,5 @@
 -- profiles --
-CREATE TYPE profile_role_types AS ENUM ('admin','teacher','user');
+CREATE TYPE profile_role_types AS ENUM ('admin','teacher','base_user');
 
 CREATE TABLE public.profiles
 (
@@ -15,6 +15,7 @@ CREATE TABLE public.profiles
     nickname    varchar,
     avatar_url  varchar,
     gdpr_optin  boolean                  DEFAULT FALSE,
+    role        profile_role_types       DEFAULT 'user',
     is_archived bool                     DEFAULT FALSE,
     accepted_eula BOOLEAN                DEFAULT FALSE
 );
