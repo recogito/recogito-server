@@ -13,7 +13,7 @@ BEGIN
     (item->'collection_metadata'),
     (item->'meta_data')
   FROM json_array_elements(payload) AS item
-  ON CONFLICT (collection_id, (meta_data->>'url')) 
+  ON CONFLICT (collection_id, (meta_data->>'url')) WHERE collection_id IS NOT NULL 
   DO UPDATE SET
     name = EXCLUDED.name,
     collection_metadata = EXCLUDED.collection_metadata,

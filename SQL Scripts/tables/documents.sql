@@ -57,7 +57,7 @@ ALTER TABLE public.documents ADD COLUMN document_group_id uuid;
 
 -- Changes 01/14/26 --
 -- Unique index to ensure we don't insert duplicate documents per collection based on the manifest URL
-CREATE UNIQUE INDEX IF NOT EXISTS documents_unique_collection_id_url ON documents (collection_id, ((meta_data ->> 'url')));
+CREATE UNIQUE INDEX IF NOT EXISTS documents_unique_collection_id_url ON documents (collection_id, ((meta_data ->> 'url'))) WHERE collection_id IS NOT NULL;
 
 -- add generated columns from collection metadata (doc id, revision number, authorship metadata)
 alter table "public"."documents" add column if not exists "collection_document_id" text generated always as (COALESCE((collection_metadata ->> 'document_id'::text), (id)::text)) stored;
