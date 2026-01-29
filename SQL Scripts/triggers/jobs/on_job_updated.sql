@@ -1,0 +1,1 @@
+CREATE TRIGGER on_job_updated BEFORE UPDATE ON public.jobs FOR EACH ROW EXECUTE FUNCTION update_dates_and_user();
