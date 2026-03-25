@@ -1,3 +1,5 @@
+-- add new etl.is_importing config to import rpc
+
 CREATE OR REPLACE FUNCTION etl.load_rpc(_import_id uuid)
     RETURNS BOOLEAN AS $body$
 BEGIN
@@ -539,3 +541,181 @@ BEGIN
     RETURN TRUE;
 END
 $body$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- use it to prevent unwanted reassignments during import
+
+CREATE OR REPLACE FUNCTION accept_project_invite()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    -- do not create a group_user for the importing user on import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    IF NEW.accepted IS TRUE THEN
+        INSERT INTO public.group_users
+            (group_type, user_id, type_id)
+        VALUES ('project', auth.uid(), NEW.project_group_id);
+
+        PERFORM do_assign_all_check_for_user(NEW.project_id, auth.uid());
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+CREATE OR REPLACE FUNCTION create_dates_and_user()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    -- do not modify date or user during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    NEW.created_at = NOW();
+    NEW.created_by = auth.uid();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE
+OR        REPLACE FUNCTION CREATE_DEFAULT_LAYER_GROUPS () RETURNS TRIGGER AS $$
+DECLARE
+    _layer_group_id uuid;
+    _role_id        uuid;
+    _name           varchar;
+    _description    varchar;
+    _is_admin       bool;
+    _is_default     bool;
+    _is_read_only   bool;
+BEGIN
+    -- do not create extra layer groups during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    FOR _role_id, _name, _description, _is_admin, _is_default, _is_read_only 
+        IN SELECT role_id, name, description, is_admin, is_default, is_read_only
+        FROM public.default_groups
+        WHERE group_type = 'layer'
+        LOOP
+            _layer_group_id = extensions.uuid_generate_v4();
+            INSERT INTO public.layer_groups
+                (id, layer_id, role_id, name, description, is_admin, is_default, is_read_only)
+            VALUES (_layer_group_id, NEW.id, _role_id, _name, _description, _is_admin, _is_default, _is_read_only);
+
+            IF _is_admin IS TRUE AND NEW.created_by IS NOT NULL THEN
+                INSERT INTO public.group_users (group_type, type_id, user_id)
+                VALUES ('layer', _layer_group_id, NEW.created_by);
+            END IF;
+        END LOOP;
+    RETURN NEW;
+END
+$$ LANGUAGE PLPGSQL SECURITY DEFINER;
+
+CREATE
+OR        REPLACE FUNCTION CREATE_DEFAULT_PROJECT_GROUPS () RETURNS TRIGGER AS $$
+DECLARE
+    _project_group_id uuid;
+    _role_id          uuid;
+    _name             varchar;
+    _description      varchar;
+    _is_admin         bool;
+    _is_default       bool;
+    _is_read_only     bool;
+BEGIN
+    -- do not create extra project groups during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    FOR _role_id, _name, _description, _is_admin, _is_default, _is_read_only 
+        IN SELECT role_id, name, description, is_admin, is_default, is_read_only
+        FROM public.default_groups
+        WHERE group_type = 'project'
+        LOOP
+            _project_group_id = extensions.uuid_generate_v4();
+            INSERT INTO public.project_groups
+                (id, project_id, role_id, name, description, is_admin, is_default, is_read_only)
+            VALUES (_project_group_id, NEW.id, _role_id, _name, _description, _is_admin, _is_default, _is_read_only);
+
+            IF _is_admin IS TRUE AND NEW.created_by IS NOT NULL THEN
+                INSERT INTO public.group_users (group_type, type_id, user_id)
+                VALUES ('project', _project_group_id, NEW.created_by);
+            END IF;
+        END LOOP;
+    RETURN NEW;
+END
+$$ LANGUAGE PLPGSQL SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION create_group_user_with_check()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    -- do not modify date or user during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+
+    IF public.check_for_group_membership(NEW.user_id, NEW.group_type, NEW.type_id) IS TRUE THEN
+        RETURN NULL;
+    END IF;
+    NEW.created_at = NOW();
+    NEW.created_by = auth.uid();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION update_annotation_target_body()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    -- do not modify date or user during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    NEW.updated_at = NOW();
+    -- created_at and created_by cannot be changed --
+    NEW.created_at = OLD.created_at;
+    NEW.created_by = OLD.created_by;
+    NEW.updated_by = auth.uid();
+    -- increment version ---
+    NEW.version = OLD.version + 1;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION update_dates_and_user()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    -- do not modify date or user during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    NEW.updated_at = NOW();
+    NEW.updated_by = auth.uid();
+    -- These should never change --
+    NEW.created_at = OLD.created_at;
+    NEW.created_by = OLD.created_by;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+CREATE
+OR        REPLACE FUNCTION PUBLIC.UPDATE_DOCUMENT () RETURNS TRIGGER LANGUAGE PLPGSQL SECURITY DEFINER AS $$
+BEGIN
+    -- do not modify date, user, or privacy during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    NEW.updated_at = NOW();
+    NEW.updated_by = auth.uid();
+    -- These should never change --
+    NEW.created_at = OLD.created_at;
+    NEW.created_by = OLD.created_by;
+    IF NEW.is_private = TRUE AND auth.uid() != OLD.created_by THEN
+        NEW.is_private = FALSE;
+    END IF;
+    RETURN NEW;
+END;
+$$;
