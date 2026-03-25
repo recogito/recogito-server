@@ -1,6 +1,10 @@
 CREATE
 OR        REPLACE FUNCTION PUBLIC.UPDATE_DOCUMENT () RETURNS TRIGGER LANGUAGE PLPGSQL SECURITY DEFINER AS $$
 BEGIN
+    -- do not modify date, user, or privacy during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
     NEW.updated_at = NOW();
     NEW.updated_by = auth.uid();
     -- These should never change --

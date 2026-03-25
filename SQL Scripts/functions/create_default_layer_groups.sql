@@ -9,6 +9,10 @@ DECLARE
     _is_default     bool;
     _is_read_only   bool;
 BEGIN
+    -- do not create extra layer groups during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
     FOR _role_id, _name, _description, _is_admin, _is_default, _is_read_only 
         IN SELECT role_id, name, description, is_admin, is_default, is_read_only
         FROM public.default_groups
