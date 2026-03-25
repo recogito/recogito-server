@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION create_date_and_user()
+CREATE OR REPLACE FUNCTION create_dates_and_user()
     RETURNS TRIGGER AS
 $$
 BEGIN
