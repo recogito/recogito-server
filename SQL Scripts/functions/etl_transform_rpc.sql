@@ -25,6 +25,7 @@ BEGIN
      WHERE public.documents.collection_id = z_documents.collection_id
        AND public.documents.meta_data->>'url' = z_documents.meta_data->>'url'
        AND z_documents.import_id = _import_id
+       AND z_documents.is_new IS TRUE
     ;
 
     -- Set truly new documents to use new UUID
@@ -47,6 +48,22 @@ BEGIN
        SET new_id = z_profiles.id
      WHERE z_profiles.is_new IS TRUE
        AND z_profiles.import_id = _import_id
+    ;
+
+    UPDATE z_profiles z
+       SET created_by = z_creator.new_id
+      FROM z_profiles z_creator
+     WHERE z_creator.legacy_id = z.created_by
+       AND z_creator.import_id = _import_id
+       AND z.import_id = _import_id
+    ;
+
+    UPDATE z_profiles z
+       SET updated_by = z_updater.new_id
+      FROM z_profiles z_updater
+     WHERE z_updater.legacy_id = z.updated_by
+       AND z_updater.import_id = _import_id
+       AND z.import_id = _import_id
     ;
 
     -- z_annotations
@@ -179,6 +196,21 @@ BEGIN
       FROM z_projects
      WHERE z_projects.legacy_id = z_contexts.project_id
        AND z_projects.import_id = _import_id
+       AND z_contexts.import_id = _import_id
+    ;
+    UPDATE z_contexts
+       SET created_by = z_profiles.new_id
+      FROM z_profiles
+     WHERE z_profiles.legacy_id = z_contexts.created_by
+       AND z_profiles.import_id = _import_id
+       AND z_contexts.import_id = _import_id
+    ;
+
+    UPDATE z_contexts
+       SET updated_by = z_profiles.new_id
+      FROM z_profiles
+     WHERE z_profiles.legacy_id = z_contexts.updated_by
+       AND z_profiles.import_id = _import_id
        AND z_contexts.import_id = _import_id
     ;
 
