@@ -7,9 +7,6 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- set flag for triggers to prevent user reassignment on create/update
-    PERFORM set_config('etl.is_importing', 'true', true);
-
     -- profiles
     INSERT INTO public.profiles (
         id,

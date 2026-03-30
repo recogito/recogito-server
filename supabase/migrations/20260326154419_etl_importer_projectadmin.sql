@@ -28,10 +28,9 @@ BEGIN
        AND z_documents.is_new IS TRUE
     ;
 
-    -- Set truly new documents to use new UUID, and remove them from any collection
+    -- Set truly new documents to use new UUID
     UPDATE z_documents
-       SET new_id = z_documents.id,
-           collection_id = NULL
+       SET new_id = z_documents.id
      WHERE z_documents.is_new IS TRUE
        AND z_documents.import_id = _import_id
     ;

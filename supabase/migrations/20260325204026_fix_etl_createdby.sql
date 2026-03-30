@@ -28,10 +28,9 @@ BEGIN
        AND z_documents.is_new IS TRUE
     ;
 
-    -- Set truly new documents to use new UUID, and remove them from any collection
+    -- Set truly new documents to use new UUID
     UPDATE z_documents
-       SET new_id = z_documents.id,
-           collection_id = NULL
+       SET new_id = z_documents.id
      WHERE z_documents.is_new IS TRUE
        AND z_documents.import_id = _import_id
     ;
@@ -523,41 +522,6 @@ BEGIN
      WHERE z_profiles.legacy_id = z_targets.updated_by
        AND z_profiles.import_id = _import_id
        AND z_targets.import_id = _import_id
-    ;
-
-    -- add importing user as a group_user on the project_group for this project,
-    -- as an admin
-
-    -- first, delete to prevent duplicate group_users entry
-    DELETE FROM etl.z_group_users
-     WHERE user_id = auth.uid()
-       AND group_type = 'project'
-       AND import_id = _import_id
-    ;
-
-    -- then create a new one (with brand new uuids) for the Admin project group
-    INSERT INTO etl.z_group_users (
-        id,
-        legacy_id,
-        created_by,
-        updated_by,
-        group_type,
-        type_id,
-        user_id,
-        import_id
-    )
-    SELECT 
-        extensions.uuid_generate_v4(),
-        extensions.uuid_generate_v4(),
-        auth.uid(),
-        auth.uid(),
-        'project',
-        zpg.id,
-        auth.uid(),
-        _import_id
-      FROM etl.z_project_groups zpg
-     WHERE zpg.import_id = _import_id
-       AND zpg.is_admin = TRUE
     ;
 
     RETURN TRUE;

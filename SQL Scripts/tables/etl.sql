@@ -394,3 +394,9 @@ CREATE TABLE etl.z_targets (
 
 CREATE INDEX z_targets_import_id_idx ON etl.z_targets USING btree (import_id);
 CREATE INDEX z_targets_legacy_id_idx ON etl.z_targets USING btree (legacy_id);
+
+-- changes 03/23/2026 --
+alter table "etl"."z_documents" add column "author" text;
+
+-- changes 03/24/2026 --
+alter table "etl"."z_documents" add column "new_id" uuid;
