@@ -1,3 +1,7 @@
+-- Rename the etl schema to recogito_etl
+ALTER SCHEMA etl RENAME TO recogito_etl;
+
+-- Update function that referenced it by name
 CREATE OR REPLACE FUNCTION recogito_etl.transform_rpc(_import_id uuid)
     RETURNS BOOLEAN AS $body$
 BEGIN

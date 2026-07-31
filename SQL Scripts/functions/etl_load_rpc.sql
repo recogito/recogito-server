@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION etl.load_rpc(_import_id uuid)
+CREATE OR REPLACE FUNCTION recogito_etl.load_rpc(_import_id uuid)
     RETURNS BOOLEAN AS $body$
 BEGIN
     -- Only organization admins may import projects
