@@ -10,3 +10,6 @@ CREATE TABLE public.project_documents
     document_id       uuid REFERENCES public.documents,
     sort              integer                  DEFAULT 0
 );
+
+CREATE INDEX IF NOT EXISTS project_documents_project_id_idx ON public.project_documents USING btree (project_id);
+CREATE INDEX IF NOT EXISTS project_documents_document_id_idx ON public.project_documents USING btree (document_id);
