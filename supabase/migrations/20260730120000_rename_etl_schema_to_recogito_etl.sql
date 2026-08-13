@@ -1,3 +1,7 @@
+-- Rename the etl schema to recogito_etl
+ALTER SCHEMA etl RENAME TO recogito_etl;
+
+-- Update function that referenced it by name
 CREATE OR REPLACE FUNCTION recogito_etl.transform_rpc(_import_id uuid)
     RETURNS BOOLEAN AS $body$
 BEGIN
@@ -36,25 +40,13 @@ BEGIN
        AND z_documents.import_id = _import_id
     ;
 
-    -- Update the ID for imported profiles records to preserve users that already exist.
-    -- Email is NOT unique in public.profiles, so pick the canonical profile: prefer a
-    -- non-archived account, then the most recently signed in, then most recently created.
-    UPDATE z_profiles z
+    -- Update the ID for imported profiles records to preserve users that already exist
+    UPDATE z_profiles
        SET is_new = FALSE,
-           new_id = (
-               SELECT p.id
-                 FROM public.profiles p
-                 LEFT JOIN auth.users u ON u.id = p.id
-                WHERE p.email = z.email
-                ORDER BY p.is_archived ASC,
-                         u.last_sign_in_at DESC NULLS LAST,
-                         p.created_at DESC NULLS LAST
-                LIMIT 1
-           )
-     WHERE z.import_id = _import_id
-       AND EXISTS (
-               SELECT 1 FROM public.profiles p WHERE p.email = z.email
-           )
+           new_id = public.profiles.id
+      FROM public.profiles
+     WHERE public.profiles.email = z_profiles.email
+       AND z_profiles.import_id = _import_id
     ;
 
     UPDATE z_profiles

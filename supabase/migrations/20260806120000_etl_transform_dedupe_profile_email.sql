@@ -1,3 +1,5 @@
+-- Make the ETL profile pre-existence match deterministic.
+
 CREATE OR REPLACE FUNCTION recogito_etl.transform_rpc(_import_id uuid)
     RETURNS BOOLEAN AS $body$
 BEGIN
