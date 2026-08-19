@@ -2575,11 +2575,13 @@ async function readContextDocuments(
   documentId: string,
   contextId: string
 ) {
-  return await supabase
+  const result = await supabase
     .from('context_documents')
     .select()
     .eq('context_id', contextId)
     .eq('document_id', documentId);
+
+  return result.data || [];
 }
 
 let TEST_CONTEXT_3_ID = '';
@@ -2649,7 +2651,7 @@ test('Removing a document from a context hides it', async () => {
       TEST_CONTEXT_3_ID
     );
 
-    expect(rows.data.length).toBe(0);
+    expect(rows.length).toBe(0);
   } else {
     expect(supabase).not.toBe(null);
   }
@@ -2680,7 +2682,7 @@ test('A re-added document is visible again after being added back', async () => 
       TEST_CONTEXT_3_ID
     );
 
-    expect(rows.data.length).toBe(1);
+    expect(rows.length).toBe(1);
   } else {
     expect(supabase).not.toBe(null);
   }
@@ -2696,8 +2698,10 @@ test('Re-adding a document restores its original layer', async () => {
       TEST_CONTEXT_3_ID
     );
 
-    expect(result.data.length).toBe(1);
-    expect(result.data[0].layer_id).toBe(TEST_CONTEXT_3_LAYER_ID);
+    const layerContexts = result.data || [];
+
+    expect(layerContexts.length).toBe(1);
+    expect(layerContexts[0].layer_id).toBe(TEST_CONTEXT_3_LAYER_ID);
   } else {
     expect(supabase).not.toBe(null);
   }
