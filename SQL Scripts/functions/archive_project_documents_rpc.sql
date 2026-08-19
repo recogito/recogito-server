@@ -4,10 +4,7 @@ OR REPLACE FUNCTION archive_project_documents_rpc (
     _document_ids uuid[] 
 ) RETURNS BOOLEAN AS $body$
 DECLARE
-    _context_id uuid;
-    _layer_id uuid;
     _document_id uuid;
-    _row RECORD;
 BEGIN
     -- Check project policy that project documents can be updated by this user
     IF NOT (check_action_policy_organization(auth.uid(), 'project_documents', 'UPDATE') 
@@ -24,14 +21,13 @@ BEGIN
           SET is_archived = TRUE 
           WHERE pd.document_id = _document_id AND pd.project_id = _project_id;
         
-        -- Archive the document in all contexts that contain it
-        FOR _row IN SELECT * FROM public.contexts c WHERE c.project_id = _project_id
-        LOOP 
-          UPDATE public.context_documents 
-            SET is_archived = TRUE 
-            WHERE document_id = _document_id;
-        END LOOP;
-          
+        -- Archive the document in the contexts of THIS project that contain it.
+        -- Without the context filter this archived the document in every other
+        -- project's contexts as well.
+        UPDATE public.context_documents cd
+          SET is_archived = TRUE 
+          WHERE cd.document_id = _document_id
+            AND cd.context_id IN (SELECT c.id FROM public.contexts c WHERE c.project_id = _project_id);
     END LOOP;
 
     RETURN TRUE;

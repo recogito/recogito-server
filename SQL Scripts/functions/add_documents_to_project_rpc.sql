@@ -7,7 +7,6 @@ DECLARE
     _context_id uuid;
     _layer_id uuid;
     _document_id uuid;
-    _row public.contexts % rowtype;
 BEGIN
     -- Check project policy that project documents can be updated by this user
     IF NOT (check_action_policy_organization(auth.uid(), 'project_documents', 'UPDATE') 
@@ -38,13 +37,13 @@ BEGIN
             SET is_archived = FALSE 
             WHERE pd.document_id = _document_id AND pd.project_id = _project_id;
             
-            -- Unarchive the document in all contexts that contain it
-            FOR _row IN SELECT * FROM public.contexts c WHERE c.project_id = _project_id
-            LOOP 
-            UPDATE public.context_documents 
-                SET is_archived = FALSE 
-                WHERE document_id = _document_id;
-            END LOOP;            
+            -- Unarchive the document in the contexts of THIS project that contain it.
+            -- Without the context filter this reached into every other project's
+            -- contexts as well.
+            UPDATE public.context_documents cd
+              SET is_archived = FALSE 
+              WHERE cd.document_id = _document_id
+                AND cd.context_id IN (SELECT c.id FROM public.contexts c WHERE c.project_id = _project_id);
         ELSE
             -- Add the document to project_documents
             INSERT INTO public.project_documents 
@@ -54,7 +53,11 @@ BEGIN
             -- Add a context_document record to the default context
             INSERT INTO public.context_documents
                 (created_by, created_at, context_id, document_id)
-                VALUES (auth.uid(), NOW(), _context_id, _document_id);
+                VALUES (auth.uid(), NOW(), _context_id, _document_id)
+            ON CONFLICT (context_id, document_id) DO UPDATE
+                SET is_archived = FALSE,
+                    updated_at  = NOW(),
+                    updated_by  = auth.uid();
 
             -- Add the default layer
             _layer_id = extensions.uuid_generate_v4();
