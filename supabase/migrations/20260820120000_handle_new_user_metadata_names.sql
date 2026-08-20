@@ -1,3 +1,6 @@
+-- allow first_name/last_name to be set via raw_user_meta_data when created with
+-- auth.admin.createUser (service role), not just via SSO custom_claims
+
 CREATE
 OR REPLACE FUNCTION public.handle_new_user () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -30,4 +33,3 @@ BEGIN
     RETURN new;
 END;
 $$;
-
