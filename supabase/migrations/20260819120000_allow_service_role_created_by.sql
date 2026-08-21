@@ -1,0 +1,20 @@
+-- Allow service-role callers (e.g. import scripts with no authenticated session) to set
+-- created_at/created_by directly on insert, without affecting normal authenticated users.
+
+CREATE OR REPLACE FUNCTION create_dates_and_user()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    -- do not modify date or user during ETL import
+    IF current_setting('etl.is_importing', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+    -- no authenticated session (service-role callers) -- trust the values the caller supplied
+    IF auth.uid() IS NULL THEN
+        RETURN NEW;
+    END IF;
+    NEW.created_at = NOW();
+    NEW.created_by = auth.uid();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
