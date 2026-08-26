@@ -8,6 +8,7 @@ DECLARE
     _layer_id uuid;
     _document_id uuid;
     _restored_count int;
+    _archived_ids text;
 BEGIN
     -- Find the project for this context  
     SELECT p.id INTO _project_id FROM public.projects p 
@@ -25,6 +26,17 @@ BEGIN
     THEN
         RETURN FALSE;
     END IF;  
+
+    -- Refuse to link an archived document, for the same reason as
+    -- add_documents_to_project_rpc: the SELECT policy on context_documents only
+    -- checks the link row, so the client would see a link to a hidden document.
+    SELECT string_agg(d.id::text, ', ') INTO _archived_ids
+      FROM public.documents d
+      WHERE d.id = ANY(_document_ids) AND d.is_archived IS TRUE;
+
+    IF _archived_ids IS NOT NULL THEN
+        RAISE EXCEPTION 'cannot add archived document(s) to context %: %', _context_id, _archived_ids;
+    END IF;
 
     -- Iterate through the document ids
     FOREACH _document_id IN ARRAY _document_ids 
