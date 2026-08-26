@@ -7,6 +7,7 @@ DECLARE
     _context_id uuid;
     _layer_id uuid;
     _document_id uuid;
+    _archived_ids text;
 BEGIN
     -- Check project policy that project documents can be updated by this user
     IF NOT (check_action_policy_organization(auth.uid(), 'project_documents', 'UPDATE') 
@@ -14,6 +15,16 @@ BEGIN
     THEN
         RETURN FALSE;
     END IF; 
+
+    -- Refuse to link an archived document. RLS hides it from the client, so the
+    -- project page would receive a null document for a link row it can see.
+    SELECT string_agg(d.id::text, ', ') INTO _archived_ids
+      FROM public.documents d
+      WHERE d.id = ANY(_document_ids) AND d.is_archived IS TRUE;
+
+    IF _archived_ids IS NOT NULL THEN
+        RAISE EXCEPTION 'cannot add archived document(s) to project %: %', _project_id, _archived_ids;
+    END IF;
 
     -- Find the default context for this project  
     SELECT c.id INTO _context_id FROM public.contexts c 
