@@ -400,3 +400,6 @@ alter table "recogito_etl"."z_documents" add column "author" text;
 
 -- changes 03/24/2026 --
 alter table "recogito_etl"."z_documents" add column "new_id" uuid;
+
+-- changes 09/22/2026 --
+alter table "recogito_etl"."z_annotations" add column "motivation" varchar;
