@@ -393,7 +393,8 @@ BEGIN
         is_archived,
         version,
         layer_id,
-        is_private
+        is_private,
+        motivation
     )
     SELECT
         id,
@@ -404,7 +405,8 @@ BEGIN
         is_archived,
         version,
         layer_id,
-        is_private
+        is_private,
+        motivation
       FROM z_annotations
      WHERE import_id = _import_id
     ON CONFLICT DO NOTHING

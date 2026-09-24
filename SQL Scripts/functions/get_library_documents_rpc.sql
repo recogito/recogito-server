@@ -44,6 +44,12 @@ BEGIN
     -- allow sorting by sort params
     ORDER BY
         CASE
+            -- sort nulls and empty strings last 
+            WHEN _sort_by = 'name' AND (d.name IS NULL OR d.name = '') THEN 1
+            WHEN _sort_by = 'author' AND (d.author IS NULL OR d.author = '') THEN 1
+            ELSE 0
+        END ASC,
+        CASE
             WHEN _sort_by = 'name' AND _sort_dir = 'asc' THEN d.name
             WHEN _sort_by = 'author' AND _sort_dir = 'asc' THEN d.author
         END ASC,
