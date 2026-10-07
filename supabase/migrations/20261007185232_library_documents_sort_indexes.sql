@@ -1,3 +1,7 @@
+-- document library paging: read one page in sort order instead of sorting the whole collection
+CREATE INDEX IF NOT EXISTS document_library_collection_name_idx ON public.documents USING btree (collection_id, name, id) WHERE (is_archived = false);
+CREATE INDEX IF NOT EXISTS document_library_collection_author_idx ON public.documents USING btree (collection_id, author, id) WHERE (is_archived = false);
+
 -- function to get library documents:
 --   always 1 revision per document (latest)
 --   sortable on name, author
