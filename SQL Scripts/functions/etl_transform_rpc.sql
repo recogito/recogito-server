@@ -513,6 +513,48 @@ BEGIN
        AND z_targets.import_id = _import_id
     ;
 
+    -- Relation annotations (motivation 'pointing') reference other annotations
+    -- by ID from inside their target selector JSON ({ start, end } anchors).
+    -- Repoint those anchors to the new IDs, and ignore anchors that don't
+    -- resolve (and simple x,y targets).
+    WITH relation_targets AS MATERIALIZED (
+        SELECT z_targets.id,
+               z_targets.value::jsonb AS selector
+          FROM z_targets
+          JOIN z_annotations
+            ON z_annotations.id = z_targets.annotation_id
+         WHERE z_targets.import_id = _import_id
+           AND z_annotations.import_id = _import_id
+           AND z_annotations.motivation = 'pointing'
+    ),
+    remapped AS (
+        SELECT relation_targets.id,
+               z_start.id AS start_id,
+               z_end.id AS end_id,
+               CASE
+                   WHEN z_start.id IS NULL THEN relation_targets.selector
+                   ELSE jsonb_set(relation_targets.selector, '{start,annotationId}', to_jsonb(z_start.id::text))
+               END AS selector
+          FROM relation_targets
+          LEFT JOIN z_annotations z_start
+            ON z_start.import_id = _import_id
+           AND z_start.legacy_id::text = lower(relation_targets.selector -> 'start' ->> 'annotationId')
+          LEFT JOIN z_annotations z_end
+            ON z_end.import_id = _import_id
+           AND z_end.legacy_id::text = lower(relation_targets.selector -> 'end' ->> 'annotationId')
+    )
+    UPDATE z_targets
+       SET value = (
+               CASE
+                   WHEN remapped.end_id IS NULL THEN remapped.selector
+                   ELSE jsonb_set(remapped.selector, '{end,annotationId}', to_jsonb(remapped.end_id::text))
+               END
+           )::text
+      FROM remapped
+     WHERE z_targets.id = remapped.id
+       AND (remapped.start_id IS NOT NULL OR remapped.end_id IS NOT NULL)
+    ;
+
     UPDATE z_targets
        SET layer_id = z_layers.id
       FROM z_layers

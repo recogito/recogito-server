@@ -71,3 +71,13 @@ CREATE INDEX IF NOT EXISTS collection_documents_idx ON public.documents USING bt
 alter table "public"."documents" add column IF NOT EXISTS "author" text;
 CREATE INDEX IF NOT EXISTS document_library_name_sort_idx ON public.documents (name) WHERE (is_archived = false);
 CREATE INDEX IF NOT EXISTS document_library_author_sort_idx ON public.documents (author) WHERE (is_archived = false);
+
+-- trigram index for document library search on name/author
+create extension if not exists "pg_trgm" with schema "public";
+
+CREATE INDEX IF NOT EXISTS idx_documents_search_trgm ON public.documents USING gin (name public.gin_trgm_ops, author public.gin_trgm_ops) WHERE (is_archived = false);
+
+-- Changes 10/07/26 --
+-- document library paging: read one page in sort order instead of sorting the whole collection
+CREATE INDEX IF NOT EXISTS document_library_collection_name_idx ON public.documents USING btree (collection_id, name, id) WHERE (is_archived = false);
+CREATE INDEX IF NOT EXISTS document_library_collection_author_idx ON public.documents USING btree (collection_id, author, id) WHERE (is_archived = false);

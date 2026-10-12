@@ -44,5 +44,8 @@ ALTER TABLE public.annotations
 ALTER TABLE public.annotations
     ADD COLUMN is_archived bool DEFAULT FALSE;
 
+-- Changes 9/22/26 --
+ALTER TABLE public.annotations
+    ADD COLUMN motivation varchar;
 
 

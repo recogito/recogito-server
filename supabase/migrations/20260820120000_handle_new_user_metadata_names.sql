@@ -1,0 +1,35 @@
+-- allow first_name/last_name to be set via raw_user_meta_data when created with
+-- auth.admin.createUser (service role), not just via SSO custom_claims
+
+CREATE
+OR REPLACE FUNCTION public.handle_new_user () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+    _id UUID;
+BEGIN
+    RAISE NOTICE 'User Id: %', NEW.id;
+    IF NEW.is_sso_user IS TRUE
+    AND NEW.raw_user_meta_data->'custom_claims' IS NOT NULL 
+    AND (NEW.raw_user_meta_data->'custom_claims'->>'first_name' IS NOT NULL 
+    OR NEW.raw_user_meta_data->'custom_claims'->>'last_name' IS NOT NULL)
+    THEN
+        INSERT INTO public.profiles (id, email, first_name, last_name)
+        VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->'custom_claims'->>'first_name', NEW.raw_user_meta_data->'custom_claims'->>'last_name');
+    ELSIF NEW.raw_user_meta_data->>'first_name' IS NOT NULL
+    OR NEW.raw_user_meta_data->>'last_name' IS NOT NULL
+    THEN
+        INSERT INTO public.profiles (id, email, first_name, last_name)
+        VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'first_name', NEW.raw_user_meta_data->>'last_name');
+    ELSE
+        INSERT INTO public.profiles (id, email)
+        VALUES (NEW.id, NEW.email);
+    END IF;
+
+    
+    IF EXISTS(SELECT 1 FROM public.organization_groups WHERE is_default = TRUE)
+    THEN
+        SELECT id INTO _id FROM public.organization_groups WHERE is_default = TRUE;
+        INSERT INTO public.group_users (user_id, group_type, type_id) VALUES (NEW.id, 'organization', _id);
+    END IF;
+    RETURN new;
+END;
+$$;

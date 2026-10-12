@@ -2558,3 +2558,151 @@ test('Students can select Annotations on read-only layers', async () => {
     expect(supabase).not.toBe(null);
   }
 });
+
+async function archiveContextDocuments(
+  supabase: SupabaseClient,
+  documentId: string,
+  contextId: string
+) {
+  return await supabase.rpc('archive_context_documents_rpc', {
+    _context_id: contextId,
+    _document_ids: [documentId],
+  });
+}
+
+async function readContextDocuments(
+  supabase: SupabaseClient,
+  documentId: string,
+  contextId: string
+) {
+  const result = await supabase
+    .from('context_documents')
+    .select()
+    .eq('context_id', contextId)
+    .eq('document_id', documentId);
+
+  return result.data || [];
+}
+
+let TEST_CONTEXT_3_ID = '';
+let TEST_CONTEXT_3_LAYER_ID = '';
+
+test('Professors can create a context to re-add documents to', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await addContextToProject(
+      supabase,
+      TEST_PROJECT_ID,
+      'Test Context 3'
+    );
+
+    if (result.data && result.data.length > 0) {
+      TEST_CONTEXT_3_ID = result.data[0].id;
+    }
+
+    expect(result.data.length > 0).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can add a document to the re-add context', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await addDocumentToContext(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_3_ID
+    );
+
+    expect(result.data).toBe(true);
+
+    const layers = await getDocumentActiveLayerContext(
+      supabase,
+      TEST_PROJECT_ID,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_3_ID
+    );
+
+    if (!layers.error && layers.data && layers.data.length) {
+      TEST_CONTEXT_3_LAYER_ID = layers.data[0].layer_id;
+    }
+
+    expect(TEST_CONTEXT_3_LAYER_ID).not.toBe('');
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Removing a document from a context hides it', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await archiveContextDocuments(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_3_ID
+    );
+
+    expect(result.data).toBe(true);
+
+    const rows = await readContextDocuments(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_3_ID
+    );
+
+    expect(rows.length).toBe(0);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Professors can add a removed document back to a context', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await addDocumentToContext(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_3_ID
+    );
+
+    expect(result.error).toBe(null);
+    expect(result.data).toBe(true);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('A re-added document is visible again after being added back', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const rows = await readContextDocuments(
+      supabase,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_3_ID
+    );
+
+    expect(rows.length).toBe(1);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});
+
+test('Re-adding a document restores its original layer', async () => {
+  const supabase = await loginAsProfessor();
+  if (supabase) {
+    const result = await getDocumentActiveLayerContext(
+      supabase,
+      TEST_PROJECT_ID,
+      TEST_DOCUMENT_ID,
+      TEST_CONTEXT_3_ID
+    );
+
+    const layerContexts = result.data || [];
+
+    expect(layerContexts.length).toBe(1);
+    expect(layerContexts[0].layer_id).toBe(TEST_CONTEXT_3_LAYER_ID);
+  } else {
+    expect(supabase).not.toBe(null);
+  }
+});

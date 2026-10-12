@@ -27,3 +27,7 @@ alter table "public"."jobs" validate constraint "jobs_created_by_fkey";
 alter table "public"."jobs" add constraint "jobs_updated_by_fkey" FOREIGN KEY (updated_by) REFERENCES profiles(id) not valid;
 
 alter table "public"."jobs" validate constraint "jobs_updated_by_fkey";
+
+-- changes 08/27/2026 --
+-- Publish changes to jobs so the frontend can watch via WebSocket
+alter publication supabase_realtime add table public.jobs;

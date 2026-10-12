@@ -11,6 +11,11 @@ BEGIN
     THEN
         INSERT INTO public.profiles (id, email, first_name, last_name)
         VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->'custom_claims'->>'first_name', NEW.raw_user_meta_data->'custom_claims'->>'last_name');
+    ELSIF NEW.raw_user_meta_data->>'first_name' IS NOT NULL
+    OR NEW.raw_user_meta_data->>'last_name' IS NOT NULL
+    THEN
+        INSERT INTO public.profiles (id, email, first_name, last_name)
+        VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'first_name', NEW.raw_user_meta_data->>'last_name');
     ELSE
         INSERT INTO public.profiles (id, email)
         VALUES (NEW.id, NEW.email);

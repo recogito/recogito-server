@@ -6,6 +6,10 @@ BEGIN
     IF current_setting('etl.is_importing', true) = 'true' THEN
         RETURN NEW;
     END IF;
+    -- no authenticated session (service-role callers) -- trust the values the caller supplied
+    IF auth.uid() IS NULL THEN
+        RETURN NEW;
+    END IF;
     NEW.created_at = NOW();
     NEW.created_by = auth.uid();
     RETURN NEW;
