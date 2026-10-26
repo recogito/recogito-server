@@ -6,11 +6,7 @@ import {
   loginAsStudent,
   loginAsTutor,
 } from '../src/utility';
-// @ts-ignore
 import { SupabaseClient } from '@supabase/supabase-js';
-// @ts-ignore
-import { log, table } from 'console';
-import { create } from 'njwt';
 
 let TEST_PROJECT_ID = '';
 let TEST_ORG_PROJECT_ID = '';
@@ -24,15 +20,12 @@ const TEST_PUBLIC_ANNOTATION_2_ID = '0597150e-193b-4f51-b14e-2a6870c9d9ee';
 const TEST_PRIVATE_ANNOTATION_ID = '72d41001-95e8-426c-959a-f1f7736a7fc3';
 const TEST_PROFESSOR_ANNOTATION_ID = '0b7dc46c-025c-4bf7-869b-1778c038cdaf';
 const TEST_PROFESSOR_ANNOTATION_2_ID = '88e247ec-39bd-4ef7-9022-4be7e9956987';
-const TEST_BAD_ANNOTATION_ID = '9790d2bd-29a1-4dc1-b5b6-3eeb1900f8e5';
 const TEST_PUBLIC_TARGET_ID = '4dfa5447-8392-4f62-b128-f1a7c094997d';
-const TEST_PUBLIC_TARGET_2_ID = 'ba379ac9-fbd3-4323-a2f3-10de50f10a2a';
 const TEST_CANNOT_CREATE_TARGET_ID = '8c78bd59-b1e5-450e-a2b9-4ffe73e12d63';
 const TEST_PROFESSOR_TARGET_ID = '40b936f0-d818-43f8-aa8d-a73abfeb73ff';
 const TEST_PRIVATE_TARGET_ID = 'f73d0d90-547c-425f-9369-56960ab3b3a3';
 const TEST_PUBLIC_BODY_ID = '0045df9f-8975-4304-80fb-c757dbd66469';
 const TEST_PRIVATE_BODY_ID = 'd5a44ff5-4d8b-46b6-9f4e-38716794aa39';
-const TEST_PROFESSOR_BODY_ID = '952d0a9f-1006-46b4-9c12-b0750e214077';
 const TEST_CANNOT_CREATE_BODY_ID = 'f97e06dc-b6a4-47df-b4f0-428b7a969f95';
 const TEST_SECOND_BODY_ID = 'fd4eff1d-cd36-4291-8bd5-aacb039b7b9e';
 const TEST_DOCUMENT_ID = '09318ec8-58f2-4497-958f-8f91343802b2';
@@ -42,9 +35,6 @@ const TEST_TUTOR_BODY_ID = '8b678638-cd09-448b-9e28-140dc3217c37';
 const TEST_INVITE_ID = 'ed273412-82ad-4715-ba6e-6eba2cdfc994';
 const TEST_TUTOR_DOCUMENT_ID = '9401ef28-aea9-4310-9137-99038148de77';
 const TEST_PROJECT_TAG_DEFINITION_ID = 'c830fba8-54d3-4d2c-aa86-6f41d2789587';
-const TEST_CONTEXT_TAG_DEFINITION_ID = '98428668-bf18-4d81-8e28-d67060df573a';
-const TEST_ORGANIZATION_TAG_DEFINITION_ID =
-  '64eccea3-6185-4247-acb0-47a707b8a4fb';
 const NO_STUDENT_PROJECT_TAG_DEFINITION =
   'f8781bb0-f551-468b-bc37-ecaf3db258af';
 const COLLECTION_DOCUMENT_ID = '95b95540-fe6c-42ef-9aa4-e1728b7b4082';
@@ -189,7 +179,7 @@ async function addContextToProject(
 }
 
 async function deleteContext(supabase: SupabaseClient, contextId: string) {
-  const result = await supabase.from('contexts').delete().eq('id', contextId);
+  await supabase.from('contexts').delete().eq('id', contextId);
 
   const supabaseCheck = await loginAsOrgAdmin();
 
@@ -243,97 +233,6 @@ async function getDocumentActiveLayerContext(
   return { error: 'Error!', data: [] };
 }
 
-async function insertLayer(
-  supabase: SupabaseClient,
-  projectId: string,
-  contextId: string,
-  layerId: string,
-  documentId: string,
-  name: string,
-  description: string
-) {
-  const resultLayer = await supabase
-    .from('layers')
-    .insert({
-      id: layerId,
-      project_id: projectId,
-      document_id: documentId,
-      name: name,
-      description: description,
-    })
-    .select();
-
-  if (resultLayer.data && resultLayer.data.length > 0) {
-    const resultLayerContext = await supabase
-      .from('layer_contexts')
-      .insert({
-        layer_id: layerId,
-        context_id: contextId,
-      })
-      .select();
-
-    if (resultLayerContext.data && resultLayerContext.data.length > 0) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-async function readLayer(supabase: SupabaseClient, layerId: string) {
-  const result = await supabase.from('layers').select().eq('id', layerId);
-
-  if (result.data && result.data.length > 0) {
-    return true;
-  }
-
-  return false;
-}
-
-async function updateLayer(
-  supabase: SupabaseClient,
-  layerId: string,
-  newName: string
-) {
-  const result = await supabase
-    .from('layers')
-    .update({ name: newName })
-    .eq('id', layerId)
-    .select();
-
-  if (
-    result.data &&
-    result.data.length > 0 &&
-    result.data[0].name === newName
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
-async function deleteLayer(supabase: SupabaseClient, layerId: string) {
-  const result = await supabase.from('layers').delete().eq('id', layerId);
-
-  const supabaseCheck = await loginAsOrgAdmin();
-
-  if (supabaseCheck) {
-    const resultSelect = await supabaseCheck
-      .from('layers')
-      .select()
-      .eq('id', layerId);
-
-    if (!resultSelect.error && resultSelect.data.length === 0) {
-      return true;
-    }
-  }
-  return false;
-}
-
-async function getLayerGroups(supabase: SupabaseClient, layerId: string) {
-  return supabase.from('layer_groups').select().eq('layer_id', layerId);
-}
-
 async function addReadOnlyLayerToContext(
   supabase: SupabaseClient,
   contextId: string,
@@ -362,7 +261,7 @@ async function addUserToContext(
     .eq('email', userEmail);
 
   if (resultStudent.data && resultStudent.data.length > 0) {
-    let result = await supabase.rpc('add_users_to_context_rpc', {
+    const result = await supabase.rpc('add_users_to_context_rpc', {
       _context_id: contextId,
       _users: [{ user_id: resultStudent.data[0].id, role: 'default' }],
     });
@@ -418,7 +317,7 @@ async function insertAnnotation(
   layerId: string,
   isPrivate: boolean
 ) {
-  const result = await supabase.from('annotations').insert({
+  await supabase.from('annotations').insert({
     id: annotationId,
     layer_id: layerId,
     is_private: isPrivate,
@@ -437,14 +336,12 @@ async function updateAnnotation(
   annotationId: string,
   isPrivate: boolean
 ) {
-  const result = await supabase
+  await supabase
     .from('annotations')
     .update({
       is_private: isPrivate,
     })
     .eq('id', annotationId);
-
-  // console.log('Update Anno error: ', result.error);
 
   const supa = await loginAsServiceUser();
   const resultSelect = await supa
@@ -511,7 +408,7 @@ async function archiveAnnotation(
 }
 
 async function archiveBody(supabase: SupabaseClient, bodyId: string) {
-  const result = await supabase.rpc('archive_record_rpc', {
+  await supabase.rpc('archive_record_rpc', {
     _table_name: 'bodies',
     _id: bodyId,
   });
@@ -556,26 +453,6 @@ async function selectAnnotation(
   return !!(result.data && result.data.length > 0);
 }
 
-async function deleteAnnotation(
-  supabase: SupabaseClient,
-  annotationId: string,
-  isPrivate: boolean
-) {
-  const result = await supabase
-    .from('annotations')
-    .delete()
-    .eq('id', annotationId);
-
-  const resultSelect = await supabase
-    .from('annotations')
-    .select()
-    .eq('id', annotationId);
-
-  return (
-    !resultSelect.error && resultSelect.data && resultSelect.data.length === 0
-  );
-}
-
 async function insertDocument(
   supabase: SupabaseClient,
   documentId: string,
@@ -584,7 +461,7 @@ async function insertDocument(
   contentType: ContentTypes,
   collectionId?: string
 ) {
-  const result = await supabase.from('documents').insert({
+  await supabase.from('documents').insert({
     id: documentId,
     name: name,
     bucket_id: bucketId,
@@ -604,7 +481,7 @@ async function makeDocumentPublic(
   supabase: SupabaseClient,
   documentId: string
 ) {
-  const result = await supabase
+  await supabase
     .from('documents')
     .update({
       is_private: false,
@@ -624,7 +501,7 @@ async function addDocumentToProject(
   documentId: string,
   projectId: string
 ) {
-  const result = await supabase.from('project_documents').insert({
+  await supabase.from('project_documents').insert({
     document_id: documentId,
     project_id: projectId,
   });
@@ -653,7 +530,7 @@ async function insertTarget(
   conformsTo: TargetConformsToType,
   value: string
 ) {
-  const result = await supabase.from('targets').insert({
+  await supabase.from('targets').insert({
     id: targetId,
     annotation_id: annotationId,
     layer_id: layerId,
@@ -670,26 +547,6 @@ async function insertTarget(
   return !!(resultSelect.data && resultSelect.data.length > 0);
 }
 
-async function updateTarget(
-  supabase: SupabaseClient,
-  targetId: string,
-  newValue: string
-) {
-  const result = await supabase
-    .from('targets')
-    .update({
-      value: newValue,
-    })
-    .eq('id', targetId)
-    .select();
-
-  if (result.data && result.data.length > 0) {
-    return result.data[0].value === newValue;
-  }
-
-  return false;
-}
-
 async function selectTarget(supabase: SupabaseClient, targetId: string) {
   const result = await supabase.from('targets').select().eq('id', targetId);
 
@@ -697,7 +554,7 @@ async function selectTarget(supabase: SupabaseClient, targetId: string) {
 }
 
 async function deleteTarget(supabase: SupabaseClient, targetId: string) {
-  const result = await supabase.from('targets').delete().eq('id', targetId);
+  await supabase.from('targets').delete().eq('id', targetId);
 
   const resultSelect = await supabase
     .from('targets')
@@ -719,7 +576,7 @@ async function insertBody(
   purpose: string,
   value: string
 ) {
-  const result = await supabase.from('bodies').insert({
+  await supabase.from('bodies').insert({
     id: bodyId,
     annotation_id: annotationId,
     layer_id: layerId,
@@ -734,42 +591,6 @@ async function insertBody(
   const resultSelect = await supe.from('bodies').select().eq('id', bodyId);
 
   return !!(resultSelect.data && resultSelect.data.length > 0);
-}
-
-async function updateBody(
-  supabase: SupabaseClient,
-  bodyId: string,
-  newValue: string
-) {
-  const result = await supabase
-    .from('bodies')
-    .update({
-      value: newValue,
-    })
-    .eq('id', bodyId)
-    .select();
-
-  if (result.data && result.data.length > 0) {
-    return result.data[0].value === newValue;
-  }
-
-  return false;
-}
-
-async function selectBody(supabase: SupabaseClient, bodyId: string) {
-  const result = await supabase.from('bodies').select().eq('id', bodyId);
-
-  return !!(result.data && result.data.length > 0);
-}
-
-async function deleteBody(supabase: SupabaseClient, bodyId: string) {
-  const result = await supabase.from('bodies').delete().eq('id', bodyId);
-
-  const resultSelect = await supabase.from('bodies').select().eq('id', bodyId);
-
-  return (
-    !resultSelect.error && resultSelect.data && resultSelect.data.length === 0
-  );
 }
 
 async function selectLayerContext(
@@ -1611,7 +1432,7 @@ test('Students cannot update projects', async () => {
 });
 
 test('Students can read projects they are a member of', async () => {
-  let supabase = await loginAsProfessor();
+  const supabase = await loginAsStudent();
 
   if (supabase) {
     const result = await readProject(supabase, TEST_PROJECT_ID);
