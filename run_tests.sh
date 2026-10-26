@@ -12,8 +12,8 @@ node ./create-default-groups.js -f ./config.json
 
 sleep 2
 
-node ./create-test-users.js -f ./config.json
+node ./create-test-users.js
 
 sleep 2
 
-yarn --cwd ./jest run test
+npm --prefix ./jest run test

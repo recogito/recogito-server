@@ -1,15 +1,23 @@
 {
+  "engines": {
+    "node": ">=26"
+  },
   "dependencies": {
-    "@supabase/supabase-js": "^2.22.0",
+    "@supabase/supabase-js": "^2.118.0",
     "command-line-args": "^5.2.1",
     "dotenv": "^16.3.1",
     "mime": "^3.0.0",
-    "njwt": "^2.0.0"
+    "njwt": "^2.0.1"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "prettier": "^2.8.8"
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "prettier": "^2.8.8",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
+  },
+  "scripts": {
+    "lint": "eslint ."
   }
 }

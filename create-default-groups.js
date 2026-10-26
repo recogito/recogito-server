@@ -1,7 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const commandLineArgs = require('command-line-args');
 const fs = require('fs');
-const stream = require('stream');
 
 const main = async (options) => {
   let supabase = createClient(
@@ -26,6 +25,7 @@ const main = async (options) => {
     const configStr = fs.readFileSync(options.file, 'utf8');
     config = JSON.parse(configStr);
   } catch (err) {
+    process.exitCode = 1;
     console.error(err);
     return;
   }
@@ -182,6 +182,7 @@ const main = async (options) => {
       .select();
 
     if (groupAddResponse.error) {
+      process.exitCode = 1;
       console.error('Failed to add Admin to group: ', orgGroupsResponse.name);
       console.error(groupAddResponse.error);
     }
@@ -219,6 +220,7 @@ const main = async (options) => {
     .upsert(defaultGroups, { ignoreDuplicates: false, onConflict: 'id' })
     .select();
   if (defaultGroupsResponse.error) {
+    process.exitCode = 1;
     console.error('Failed to create default_groups');
   } else {
     console.info('Default Groups:');
@@ -230,6 +232,7 @@ const main = async (options) => {
   const remoteRolesPolicies = await supabase.from('role_policies').select();
 
   if (remoteRolesPolicies.error) {
+    process.exitCode = 1;
     console.error('Failed to retrieve Roles');
   } else {
     for (let i = 0; i < remoteRolesPolicies.data.length; i++) {
@@ -247,6 +250,7 @@ const main = async (options) => {
           .eq('policy_id', rolePolicy.policy_id);
 
         if (deleteRolePolicyResp.error) {
+          process.exitCode = 1;
           console.error('Failed to delete role_policy');
         }
       }
@@ -257,6 +261,7 @@ const main = async (options) => {
   const remoteRoles = await supabase.from('roles').select();
 
   if (remoteRoles.error) {
+    process.exitCode = 1;
     console.error('Failed to retrieve Roles');
   } else {
     for (let i = 0; i < remoteRoles.data.length; i++) {
@@ -269,6 +274,7 @@ const main = async (options) => {
           .eq('id', role.id);
 
         if (deleteRoleResp.error) {
+          process.exitCode = 1;
           console.error('Failed to role');
         }
       }
@@ -279,6 +285,7 @@ const main = async (options) => {
   const remoteOrgGroups = await supabase.from('organization_groups').select();
 
   if (remoteOrgGroups.error) {
+    process.exitCode = 1;
     console.error('Failed to retrieve Org Groups');
   } else {
     for (let i = 0; i < remoteOrgGroups.data.length; i++) {
@@ -293,29 +300,16 @@ const main = async (options) => {
           .eq('role_id', group.role_id);
 
         if (deleteGroupResp.error) {
+          process.exitCode = 1;
           console.error('Failed to delete Org Group');
         }
       }
     }
   }
 
-  // Make sure we have a 'documents' bucket
-  const documentsBucketResp = await supabase.storage.getBucket('documents');
-
-  if (documentsBucketResp.error || documentsBucketResp.data.length === 0) {
-    const { data, error } = await supabase.storage.createBucket('documents', {
-      public: false
-    });
-  }
-
-  // Make sure we have a 'jobs' bucket
-  const jobsBucketResp = await supabase.storage.getBucket('jobs');
-
-  if (jobsBucketResp.error || jobsBucketResp.data.length === 0) {
-    const { data, error } = await supabase.storage.createBucket('jobs', {
-      public: false
-    });
-  }
+  // Make sure we have the 'documents' and 'jobs' buckets
+  await ensureBucket(supabase, 'documents');
+  await ensureBucket(supabase, 'jobs');
 
   // Make sure we have a DEFAULT_CONTEXT tag_definition
   const tagCreateResp = await supabase.from('tag_definitions').upsert({
@@ -324,6 +318,38 @@ const main = async (options) => {
     target_type: 'context',
     scope: 'system',
   });
+
+  if (tagCreateResp.error) {
+    process.exitCode = 1;
+    console.error('Failed to create DEFAULT_CONTEXT tag_definition: ', tagCreateResp.error);
+  }
+};
+
+// Storage reports a missing bucket as HTTP 404, or as HTTP 400 with a '404' statusCode in the body
+const isNotFound = (error) =>
+  error.status === 404 || String(error.statusCode) === '404';
+
+const ensureBucket = async (supabase, id) => {
+  const { error: getError } = await supabase.storage.getBucket(id);
+
+  if (!getError) {
+    return;
+  }
+
+  if (!isNotFound(getError)) {
+    process.exitCode = 1;
+    console.error(`Failed to retrieve ${id} bucket: `, getError);
+    return;
+  }
+
+  const { error } = await supabase.storage.createBucket(id, {
+    public: false
+  });
+
+  if (error) {
+    process.exitCode = 1;
+    console.error(`Failed to create ${id} bucket: `, error);
+  }
 };
 
 const optionDefinitions = [
