@@ -102,6 +102,12 @@ const main = async (options) => {
       ignoreDuplicates: false,
     });
 
+  if (orgGroupsResponse.error) {
+    process.exitCode = 1;
+    console.error('Failed to create organization_groups');
+    console.error(orgGroupsResponse.error);
+  }
+
   const orgAdminGroup = organizationGroupInserts.find(
     (g) => g.is_admin === true
   );
@@ -170,20 +176,42 @@ const main = async (options) => {
   const adminId = orgAdminProfile.data[0].id;
   const adminGroupId = getOrgAdminResponse.data[0].id;
 
-  // Add the Admin to the specified groups
-  for (let i = 0; i < config.admin.admin_groups.length; i++) {
-    const groupAddResponse = await supabase
+  // Move the Admin's organization membership to the admin group. Only the
+  // organization rows are touched, and only if the Admin isn't already in it.
+  const adminMembershipResponse = await supabase
+    .from('group_users')
+    .select()
+    .eq('user_id', adminId)
+    .eq('group_type', 'organization')
+    .eq('type_id', adminGroupId);
+
+  if (adminMembershipResponse.error) {
+    process.exitCode = 1;
+    console.error('Failed to retrieve Admin group membership');
+    console.error(adminMembershipResponse.error);
+  } else if (adminMembershipResponse.data.length === 0) {
+    let groupAddResponse = await supabase
       .from('group_users')
-      .update({
-        group_type: 'organization',
-        type_id: adminGroupId,
-      })
+      .update({ type_id: adminGroupId })
       .eq('user_id', adminId)
+      .eq('group_type', 'organization')
       .select();
+
+    if (!groupAddResponse.error && groupAddResponse.data.length === 0) {
+      // No organization membership yet, so create one
+      groupAddResponse = await supabase
+        .from('group_users')
+        .insert({
+          user_id: adminId,
+          group_type: 'organization',
+          type_id: adminGroupId,
+        })
+        .select();
+    }
 
     if (groupAddResponse.error) {
       process.exitCode = 1;
-      console.error('Failed to add Admin to group: ', orgGroupsResponse.name);
+      console.error('Failed to add Admin to group: ', adminGroupId);
       console.error(groupAddResponse.error);
     }
   }
