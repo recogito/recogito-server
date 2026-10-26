@@ -1,7 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const commandLineArgs = require('command-line-args');
 const fs = require('fs');
-const stream = require('stream');
 
 const main = async (options) => {
   let supabase = createClient(
@@ -303,18 +302,26 @@ const main = async (options) => {
   const documentsBucketResp = await supabase.storage.getBucket('documents');
 
   if (documentsBucketResp.error || documentsBucketResp.data.length === 0) {
-    const { data, error } = await supabase.storage.createBucket('documents', {
+    const { error } = await supabase.storage.createBucket('documents', {
       public: false
     });
+
+    if (error) {
+      console.error('Failed to create documents bucket: ', error);
+    }
   }
 
   // Make sure we have a 'jobs' bucket
   const jobsBucketResp = await supabase.storage.getBucket('jobs');
 
   if (jobsBucketResp.error || jobsBucketResp.data.length === 0) {
-    const { data, error } = await supabase.storage.createBucket('jobs', {
+    const { error } = await supabase.storage.createBucket('jobs', {
       public: false
     });
+
+    if (error) {
+      console.error('Failed to create jobs bucket: ', error);
+    }
   }
 
   // Make sure we have a DEFAULT_CONTEXT tag_definition
@@ -324,6 +331,10 @@ const main = async (options) => {
     target_type: 'context',
     scope: 'system',
   });
+
+  if (tagCreateResp.error) {
+    console.error('Failed to create DEFAULT_CONTEXT tag_definition: ', tagCreateResp.error);
+  }
 };
 
 const optionDefinitions = [

@@ -9,9 +9,12 @@ module.exports = {
       env: {
         node: true,
       },
-      files: ['.eslintrc.{js,cjs}'],
+      files: ['.eslintrc.{js,cjs}', '*.js'],
       parserOptions: {
         sourceType: 'script',
+      },
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
       },
     },
   ],
@@ -22,7 +25,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   rules: {
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'no-explicit-any': false,
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-explicit-any': 'off',
   },
 };

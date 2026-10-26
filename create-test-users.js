@@ -1,7 +1,6 @@
 const Supa = require('@supabase/supabase-js');
 const commandLineArgs = require('command-line-args');
 const fs = require('fs');
-const stream = require('stream');
 const assert = require('assert');
 
 const main = async (options) => {
@@ -17,10 +16,10 @@ const main = async (options) => {
     }
   );
 
-  let config;
+  // Fail early if the config file is missing or malformed
   try {
     const configStr = fs.readFileSync(options.file, 'utf8');
-    config = JSON.parse(configStr);
+    JSON.parse(configStr);
   } catch (err) {
     console.error(err);
     return;
