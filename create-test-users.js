@@ -1,10 +1,7 @@
 const Supa = require('@supabase/supabase-js');
-const commandLineArgs = require('command-line-args');
-const fs = require('fs');
-const stream = require('stream');
 const assert = require('assert');
 
-const main = async (options) => {
+const main = async () => {
   let supabase = Supa.createClient(
     process.env.SUPABASE_HOST,
     process.env.SUPABASE_SERVICE_KEY,
@@ -16,15 +13,6 @@ const main = async (options) => {
       },
     }
   );
-
-  let config;
-  try {
-    const configStr = fs.readFileSync(options.file, 'utf8');
-    config = JSON.parse(configStr);
-  } catch (err) {
-    console.error(err);
-    return;
-  }
 
   await supabase.auth.signUp({
     email: 'professor@example.com',
@@ -129,12 +117,4 @@ const main = async (options) => {
   console.table(inviteProfile.data[0]);
 };
 
-const optionDefinitions = [
-  { name: 'file', alias: 'f', type: String },
-  { name: 'admin-id', alias: 'i', type: String },
-  { name: 'admin-group-id', alias: 'g', type: String },
-];
-
-const options = commandLineArgs(optionDefinitions);
-
-main(options);
+main();
