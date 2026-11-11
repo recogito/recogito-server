@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -o allexport
-source .env set
+source .env
 set +o allexport
 
 ./reset.sh
