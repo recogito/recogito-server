@@ -5,12 +5,17 @@ DECLARE
 BEGIN
     RAISE NOTICE 'User Id: %', NEW.id;
     IF NEW.is_sso_user IS TRUE
-    AND NEW.raw_user_meta_data->'custom_claims' IS NOT NULL 
-    AND (NEW.raw_user_meta_data->'custom_claims'->>'first_name' IS NOT NULL 
+    AND NEW.raw_user_meta_data->'custom_claims' IS NOT NULL
+    AND (NEW.raw_user_meta_data->'custom_claims'->>'first_name' IS NOT NULL
     OR NEW.raw_user_meta_data->'custom_claims'->>'last_name' IS NOT NULL)
     THEN
         INSERT INTO public.profiles (id, email, first_name, last_name)
         VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->'custom_claims'->>'first_name', NEW.raw_user_meta_data->'custom_claims'->>'last_name');
+    ELSIF NEW.raw_user_meta_data->'custom_claims'->>'given_name' IS NOT NULL
+    OR NEW.raw_user_meta_data->'custom_claims'->>'family_name' IS NOT NULL
+    THEN
+        INSERT INTO public.profiles (id, email, first_name, last_name)
+        VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->'custom_claims'->>'given_name', NEW.raw_user_meta_data->'custom_claims'->>'family_name');
     ELSIF NEW.raw_user_meta_data->>'first_name' IS NOT NULL
     OR NEW.raw_user_meta_data->>'last_name' IS NOT NULL
     THEN
@@ -21,7 +26,7 @@ BEGIN
         VALUES (NEW.id, NEW.email);
     END IF;
 
-    
+
     IF EXISTS(SELECT 1 FROM public.organization_groups WHERE is_default = TRUE)
     THEN
         SELECT id INTO _id FROM public.organization_groups WHERE is_default = TRUE;
@@ -30,4 +35,3 @@ BEGIN
     RETURN new;
 END;
 $$;
-
